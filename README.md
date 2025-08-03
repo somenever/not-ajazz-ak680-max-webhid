@@ -11,7 +11,7 @@ This project is presented as a work of fiction, solely for the purpose of entert
 - YMMV for other models, but feel free to try it out!
 
 ## Developing
-The web UI is built with Bun, Rsbuild, and Preact. Simply install the dependencies and run `bun dev` for a dev server.
+The web UI is built with Bun and Preact. Simply install the dependencies and run `bun dev` to build the project in development mode.
 
 ## Acknowledgements
 - [NotLinuxAjazzAK33RGB](https://github.com/thanks4opensource/NotLinuxAjazzAK33RGB) for the disclaimer text and inspiration with the sneaky naming
