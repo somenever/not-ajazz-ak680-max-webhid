@@ -1,10 +1,12 @@
 import { render } from "preact";
 import { useEffect, useState } from "preact/hooks";
+import styled from "styled-components";
 
 import { nullOf } from "$/util";
 import {
     connectKeyboard,
     isAk680MaxVendorControl,
+    KEYMAP,
     LAYERS,
     send,
     setLayerPayload,
@@ -52,6 +54,24 @@ function App() {
                     Layer {layer + 1}
                 </button>
             ))}
+
+            <h2>Keys</h2>
+            <Keys>
+                {keyboard.keys.map(
+                    (key) =>
+                        KEYMAP[key.code] && (
+                            <Key>
+                                <h2>{KEYMAP[key.code]}</h2>
+                                <KeyActuationUp>
+                                    {key.upActuation}
+                                </KeyActuationUp>
+                                <KeyActuationDown>
+                                    {key.downActuation}
+                                </KeyActuationDown>
+                            </Key>
+                        ),
+                )}
+            </Keys>
         </div>
     );
 }

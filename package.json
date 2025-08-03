@@ -1,17 +1,29 @@
 {
     "name": "not-ak680-max-webhid",
-    "version": "1.0.0",
     "private": true,
+    "version": "0.0.1",
     "type": "module",
     "scripts": {
-        "build": "bun build src/index.tsx --target=browser --outdir=public/dist --production",
-        "dev": "bun build src/index.tsx --target=browser --outdir=public/dist --sourcemap=inline --watch"
-    },
-    "dependencies": {
-        "preact": "^10.26.9"
+        "dev": "bun x --bun vite dev",
+        "build": "bun x --bun vite build",
+        "preview": "bun x --bun vite preview",
+        "prepare": "svelte-kit sync || echo ''",
+        "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
+        "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch"
     },
     "devDependencies": {
+        "@sveltejs/adapter-auto": "^6.0.0",
+        "@sveltejs/kit": "^2.22.0",
+        "@sveltejs/vite-plugin-svelte": "^6.0.0",
+        "@tailwindcss/vite": "^4.0.0",
+        "svelte": "^5.0.0",
+        "svelte-check": "^4.0.0",
+        "tailwindcss": "^4.0.0",
         "@types/w3c-web-hid": "^1.0.6",
-        "typescript": "^5.8.3"
+        "typescript": "^5.0.0",
+        "vite": "^7.0.4"
+    },
+    "dependencies": {
+        "@lucide/svelte": "^0.536.0"
     }
 }

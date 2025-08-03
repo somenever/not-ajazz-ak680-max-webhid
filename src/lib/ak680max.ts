@@ -1,4 +1,4 @@
-import { assert } from "$/util";
+import { assert } from "$lib";
 
 export const FILTER_AK680_MAX = { vendorId: 0x3151, productId: 0x502c };
 export const LAYERS = [0, 1, 2, 3] as const;
@@ -7,6 +7,7 @@ export type Keyboard = {
     firmwareID: number;
     activeLayer: Layer;
     device: HIDDevice;
+    keys: Key[];
 };
 export type Layer = (typeof LAYERS)[number];
 
@@ -43,6 +44,22 @@ export const getFirmwarePayload = new Uint8Array([
     0x00, 0x00, 0x00, 0x00,
 ]);
 
+export function getActiveLayerKeysActuationChunkPayload(
+    chunk: number,
+    direction: "up" | "down",
+): Uint8Array<ArrayBuffer> {
+    const isUp = direction === "up" ? 0x01 : 0x00;
+    // prettier-ignore
+    return new Uint8Array([
+        0xe5, isUp, 0x01, chunk, 0x00, 0x00, 0x00, 0x19 - chunk - isUp, 0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00,
+    ]);
+}
+
 export async function send(
     device: HIDDevice,
     payload: Uint8Array<ArrayBuffer>,
@@ -71,6 +88,146 @@ async function getFirmwareID(device: HIDDevice): Promise<number> {
     return payload.getUint16(1, true);
 }
 
+export const KEYMAP = [
+    "esc",
+    "tab",
+    "capslock",
+    "shift",
+    "ctrl",
+    "",
+    "one",
+    "q",
+    "a",
+    "",
+    "",
+    "",
+    "two",
+    "w",
+    "s",
+    "z",
+    "win",
+    "",
+    "three",
+    "e",
+    "d",
+    "x",
+    "alt",
+    "",
+    "four",
+    "r",
+    "f",
+    "c",
+    "",
+    "",
+    "five",
+    "t",
+    "g",
+    "v",
+    "",
+    "",
+    "six",
+    "y",
+    "h",
+    "b",
+    "spacebar",
+    "",
+    "seven",
+    "u",
+    "j",
+    "n",
+    "",
+    "",
+    "eight",
+    "i",
+    "k",
+    "m",
+    "",
+    "",
+    "nine",
+    "o",
+    "l",
+    "comma",
+    "ralt",
+    "",
+    "zero",
+    "p",
+    "semicolon",
+    "dot",
+    "fn",
+    "",
+    "minus",
+    "leftbracket",
+    "apostrophe",
+    "slash",
+    "rctrl",
+    "",
+    "plus",
+    "rightbracket",
+    "",
+    "rshift",
+    "left",
+    "",
+    "backspace",
+    "backslash",
+    "enter",
+    "up",
+    "down",
+    "",
+    "home",
+    "del",
+    "pgup",
+    "pgdown",
+    "right",
+] as const;
+
+export type Key = {
+    code: number;
+    downActuation: number;
+    upActuation: number;
+};
+
+async function getKeys(device: HIDDevice): Promise<Key[]> {
+    console.debug("sending layer keys payload");
+
+    const keys: Key[] = [];
+    for (let key = 0; key < 128; key++) {
+        keys[key] = {
+            code: key,
+            downActuation: 0,
+            upActuation: 0,
+        };
+    }
+
+    console.debug("DOWN");
+    for (let chunk = 0; chunk < 4; chunk++) {
+        console.debug("CHUNK", chunk);
+        await send(
+            device,
+            getActiveLayerKeysActuationChunkPayload(chunk, "down"),
+        );
+        const payload = await receive(device);
+        new Uint16Array(payload.buffer).forEach((key, index) => {
+            keys[chunk * 32 + index].downActuation = key / 100;
+        });
+    }
+
+    console.debug("UP");
+    for (let chunk = 0; chunk < 4; chunk++) {
+        console.debug("CHUNK", chunk);
+        await send(
+            device,
+            getActiveLayerKeysActuationChunkPayload(chunk, "up"),
+        );
+        const payload = await receive(device);
+        new Uint16Array(payload.buffer).forEach((key, index) => {
+        console.debug(chunk*32+index, key / 100);
+            keys[chunk * 32 + index].upActuation = key / 100;
+        });
+    }
+
+    return keys;
+}
+
 export const isAk680MaxVendorControl = (device: HIDDevice): boolean =>
     device.productId === FILTER_AK680_MAX.productId &&
     device.vendorId === FILTER_AK680_MAX.vendorId &&
@@ -90,9 +247,12 @@ export async function connectKeyboard(): Promise<Keyboard> {
     await device.open();
     console.debug("opened the device!");
 
-    return {
+    const keyboard = {
         firmwareID: await getFirmwareID(device),
         activeLayer: await getActiveLayer(device),
+        keys: await getKeys(device),
         device,
     };
+
+    return keyboard;
 }
