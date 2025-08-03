@@ -186,7 +186,7 @@ export type Key = {
     upActuation: number;
 };
 
-async function getKeys(device: HIDDevice): Promise<Key[]> {
+export async function getKeys(device: HIDDevice): Promise<Key[]> {
     console.debug("sending layer keys payload");
 
     const keys: Key[] = [];
@@ -220,7 +220,6 @@ async function getKeys(device: HIDDevice): Promise<Key[]> {
         );
         const payload = await receive(device);
         new Uint16Array(payload.buffer).forEach((key, index) => {
-        console.debug(chunk*32+index, key / 100);
             keys[chunk * 32 + index].upActuation = key / 100;
         });
     }

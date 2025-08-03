@@ -2,8 +2,8 @@
     import { nullOf } from "$lib";
     import {
         connectKeyboard,
+        getKeys,
         isAk680MaxVendorControl,
-        KEYMAP,
         LAYERS,
         send,
         setLayerPayload,
@@ -14,6 +14,7 @@
     import { CheckIcon, ZapIcon } from "@lucide/svelte";
 
     let keyboard = $state(nullOf<Keyboard>());
+    let processingUserLock = $state(false);
 
     $effect(() => {
         const callback = (event: HIDConnectionEvent) => {
@@ -57,10 +58,17 @@
             <div class="flex gap-2 flex-wrap">
                 {#each LAYERS as layer}
                     <Button
-                        onclick={() => {
-                            send(keyboard!.device, setLayerPayload(layer));
+                        onclick={async () => {
+                            processingUserLock = true;
+                            await send(keyboard!.device, setLayerPayload(layer));
                             keyboard!.activeLayer = layer;
+
+                            setTimeout(async () => {
+                                keyboard!.keys = await getKeys(keyboard!.device);
+                                processingUserLock = false;
+                            }, 500);
                         }}
+                        disabled={processingUserLock}
                     >
                         {#if keyboard!.activeLayer === layer}
                             <CheckIcon />
