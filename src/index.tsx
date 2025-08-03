@@ -56,5 +56,4 @@ function App() {
     );
 }
 
-const root = document.getElementById("root");
-if (root) render(<App />, root);
+render(<App />, document.body);

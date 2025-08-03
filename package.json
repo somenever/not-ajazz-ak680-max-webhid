@@ -4,16 +4,13 @@
     "private": true,
     "type": "module",
     "scripts": {
-        "build": "rsbuild build",
-        "dev": "rsbuild dev --open",
-        "preview": "rsbuild preview"
+        "build": "bun build src/index.tsx --target=browser --outdir=dist --production",
+        "dev": "bun build src/index.tsx --target=browser --outdir=dist --sourcemap=inline --watch",
     },
     "dependencies": {
         "preact": "^10.26.9"
     },
     "devDependencies": {
-        "@rsbuild/core": "^1.4.3",
-        "@rsbuild/plugin-preact": "^1.5.0",
         "@types/w3c-web-hid": "^1.0.6",
         "typescript": "^5.8.3"
     }
