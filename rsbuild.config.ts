@@ -8,4 +8,5 @@ export default defineConfig({
             $: "./src/",
         },
     },
+    html: { title: "Not AJAZZ AK680 MAX Web Utility" },
 });
