@@ -4,6 +4,7 @@ export const FILTER_AK680_MAX = { vendorId: 0x3151, productId: 0x502c };
 export const LAYERS = [1, 2, 3, 4] as const;
 
 export type Keyboard = {
+    firmwareID: number;
     activeLayer: Layer;
     device: HIDDevice;
 };
@@ -44,6 +45,15 @@ export const getLayerPayload = new Uint8Array([
     0x00, 0x00, 0x00, 0x00,
 ]);
 
+export const getFirmwarePayload = new Uint8Array([
+    0x8f, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x70, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00,
+]);
+
 export async function send(
     device: HIDDevice,
     payload: Uint8Array<ArrayBuffer>,
@@ -66,6 +76,12 @@ async function getActiveLayer(device: HIDDevice): Promise<Layer> {
     return layer;
 }
 
+async function getFirmwareID(device: HIDDevice): Promise<number> {
+    await send(device, getFirmwarePayload);
+    const payload = await receive(device);
+    return payload.getUint16(1, true);
+}
+
 export const isAk680MaxVendorControl = (device: HIDDevice): boolean =>
     device.productId === FILTER_AK680_MAX.productId &&
     device.vendorId === FILTER_AK680_MAX.vendorId &&
@@ -86,6 +102,7 @@ export async function connectKeyboard(): Promise<Keyboard> {
     console.debug("opened the device!");
 
     return {
+        firmwareID: await getFirmwareID(device),
         activeLayer: await getActiveLayer(device),
         device,
     };

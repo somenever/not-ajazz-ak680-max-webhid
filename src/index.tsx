@@ -1,7 +1,7 @@
 import { render } from "preact";
 import { useEffect, useState } from "preact/hooks";
 
-import { assert, nullOf } from "$/util";
+import { nullOf } from "$/util";
 import {
     connectKeyboard,
     isAk680MaxVendorControl,
@@ -38,6 +38,7 @@ function App() {
         <div>
             <h2>AJAZZ AK680 MAX</h2>
             <p>Connected</p>
+            <p>Firmware: ID{keyboard.firmwareID}</p>
 
             <h2>Layers</h2>
             <p>Current: Layer {keyboard.activeLayer}</p>
