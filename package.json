@@ -4,8 +4,8 @@
     "private": true,
     "type": "module",
     "scripts": {
-        "build": "bun build src/index.tsx --target=browser --outdir=dist --production",
-        "dev": "bun build src/index.tsx --target=browser --outdir=dist --sourcemap=inline --watch"
+        "build": "bun build src/index.tsx --target=browser --outdir=public/dist --production",
+        "dev": "bun build src/index.tsx --target=browser --outdir=public/dist --sourcemap=inline --watch"
     },
     "dependencies": {
         "preact": "^10.26.9"
