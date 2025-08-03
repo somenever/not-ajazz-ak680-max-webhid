@@ -1,7 +1,7 @@
 import { assert } from "$/util";
 
 export const FILTER_AK680_MAX = { vendorId: 0x3151, productId: 0x502c };
-export const LAYERS = [1, 2, 3, 4] as const;
+export const LAYERS = [0, 1, 2, 3] as const;
 
 export type Keyboard = {
     firmwareID: number;
@@ -13,21 +13,10 @@ export type Layer = (typeof LAYERS)[number];
 const isLayer = (layer: any): layer is Layer => LAYERS.includes(layer);
 
 export function setLayerPayload(layer: Layer): Uint8Array<ArrayBuffer> {
-    const layerByte1 = {
-        1: 0x00,
-        2: 0x01,
-        3: 0x02,
-        4: 0x03,
-    }[layer];
-    const layerByte2 = {
-        1: 0xfb,
-        2: 0xfa,
-        3: 0xf9,
-        4: 0xf8,
-    }[layer];
+    const layerMagicByte = [0xfb, 0xfa, 0xf9, 0xf8][layer];
     // prettier-ignore
     return new Uint8Array([
-        0x04, layerByte1, 0x00, 0x00, 0x00, 0x00, 0x00, layerByte2, 0x00, 0x00, 0x00, 0x00,
+        0x04, layer, 0x00, 0x00, 0x00, 0x00, 0x00, layerMagicByte, 0x00, 0x00, 0x00, 0x00,
         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -71,8 +60,8 @@ async function receive(device: HIDDevice) {
 async function getActiveLayer(device: HIDDevice): Promise<Layer> {
     await send(device, getLayerPayload);
     const payload = await receive(device);
-    const layer = payload.getUint8(2) + 1;
-    assert(isLayer(layer), `expected layer 1-4, got ${layer}`);
+    const layer = payload.getUint8(1);
+    assert(isLayer(layer), `expected valid layer, got ${layer}`);
     return layer;
 }
 

@@ -41,7 +41,7 @@ function App() {
             <p>Firmware: ID{keyboard.firmwareID}</p>
 
             <h2>Layers</h2>
-            <p>Current: Layer {keyboard.activeLayer}</p>
+            <p>Current: Layer {keyboard.activeLayer + 1}</p>
             {LAYERS.map((layer) => (
                 <button
                     onClick={() => {
@@ -49,7 +49,7 @@ function App() {
                         setKeyboard({ ...keyboard, activeLayer: layer });
                     }}
                 >
-                    Layer {layer}
+                    Layer {layer + 1}
                 </button>
             ))}
         </div>
