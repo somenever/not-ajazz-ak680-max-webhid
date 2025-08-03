@@ -3,4 +3,9 @@ import { pluginPreact } from "@rsbuild/plugin-preact";
 
 export default defineConfig({
     plugins: [pluginPreact()],
+    resolve: {
+        alias: {
+            $: "./src/",
+        },
+    },
 });
