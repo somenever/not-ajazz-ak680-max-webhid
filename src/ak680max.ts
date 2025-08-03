@@ -76,7 +76,11 @@ export async function connectKeyboard(): Promise<Keyboard> {
         filters: [FILTER_AK680_MAX],
     });
     console.debug("got devices:", devices);
-    const [device] = devices.filter(isAk680MaxVendorControl);
+    const device = devices.find(isAk680MaxVendorControl);
+    if (!device) {
+        throw new Error("no AK680 MAX found!");
+    }
+
     console.debug("found the right device!", device);
     await device.open();
     console.debug("opened the device!");
