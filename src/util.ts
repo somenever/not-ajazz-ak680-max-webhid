@@ -1,0 +1,10 @@
+export const nullOf = <T>(): T | null => null;
+
+export function assert(
+    condition: boolean,
+    message?: string,
+): asserts condition {
+    if (!condition) {
+        throw new Error("Assertion failed" + (message ? `: ${message}` : "!"));
+    }
+}
