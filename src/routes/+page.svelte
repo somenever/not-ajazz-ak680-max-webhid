@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { CheckIcon, TriangleAlertIcon, ZapIcon } from "@lucide/svelte";
+    import { ArrowRightIcon, BanIcon, CheckIcon, TriangleAlertIcon, ZapIcon } from "@lucide/svelte";
 
     import { nullOf } from "$lib";
     import {
@@ -16,6 +16,7 @@
     import Popup from "$lib/components/popup.svelte";
 
     let showDisclaimer = $state(true);
+    let showUnsupportedKeyboard = $state(true);
     let keyboard = $state(nullOf<Keyboard>());
     let processingUserLock = $state(false);
 
@@ -42,6 +43,9 @@
         <p class="mb-6">Connect your not-a-keyboard by pressing the button below</p>
         <Button onclick={async () => {
             keyboard = await connectKeyboard();
+            if (keyboard.firmwareID !== 2317) {
+                showUnsupportedKeyboard = true;
+            }
         }}>
             <ZapIcon />Connect
         </Button>
@@ -94,7 +98,10 @@
     close={() => showDisclaimer = false}
     class="flex flex-col p-6 gap-3 max-w-140"
 >
-    <h2 class="flex items-center gap-2 text-xl font-bold"><TriangleAlertIcon /> Disclaimer</h2>
+    <h2 class="flex flex-col items-center gap-2 text-xl font-bold">
+        <TriangleAlertIcon size={48} />
+        Disclaimer
+    </h2>
     <p class="mb-4">
         This is experimental software. Using it will void any and all warranties
         from Ajazz Electronic Technology Co., Ltd. or any other entity. This software may
@@ -104,6 +111,26 @@
     </p>
     <Button onclick={() => showDisclaimer = false}>
         <CheckIcon />I understand
+    </Button>
+</Popup>
+{/if}
+
+{#if showUnsupportedKeyboard}
+<Popup
+    modal
+    close={() => showUnsupportedKeyboard = false}
+    class="flex flex-col p-6 gap-3 max-w-140"
+>
+    <h2 class="flex flex-col items-center gap-2 text-xl font-bold">
+        <TriangleAlertIcon size={48} />
+        Unsupported Keyboard
+    </h2>
+    <p class="mb-4">
+        This software has only been tested with the AJAZZ AK680 MAX No RGB keyboard (ID 2317).
+        Your keyboard (ID {keyboard?.firmwareID ?? "unknown"}) may be different and may not work as intended.
+    </p>
+    <Button onclick={() => showUnsupportedKeyboard = false}>
+        <ArrowRightIcon />Proceed anyway
     </Button>
 </Popup>
 {/if}
