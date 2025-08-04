@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { ArrowRightIcon, BanIcon, CheckIcon, TriangleAlertIcon, ZapIcon } from "@lucide/svelte";
+    import { ArrowRightIcon, CheckIcon, TriangleAlertIcon, ZapIcon } from "@lucide/svelte";
 
     import { nullOf } from "$lib";
     import {
@@ -16,7 +16,7 @@
     import Popup from "$lib/components/popup.svelte";
 
     let showDisclaimer = $state(true);
-    let showUnsupportedKeyboard = $state(true);
+    let showUnsupportedKeyboard = $state(false);
     let keyboard = $state(nullOf<Keyboard>());
     let processingUserLock = $state(false);
 
