@@ -9,7 +9,7 @@ This project is presented as a work of fiction, solely for the purpose of entert
 
 ## Tested Models
 - AK680 MAX Black No RGB (Firmware: ID2317_V303)
-- YMMV for other models, but feel free to try it out!
+- YMMV for other models, but feel free to (not) try it out!
 
 ## Developing
 The web UI is built with Bun and SvelteKit. Simply install the dependencies and run `bun dev` to start the development server.
