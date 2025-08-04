@@ -1,4 +1,6 @@
 <script lang="ts">
+    import { CheckIcon, TriangleAlertIcon, ZapIcon } from "@lucide/svelte";
+
     import { nullOf } from "$lib";
     import {
         connectKeyboard,
@@ -11,8 +13,9 @@
     } from "$lib/ak680max";
     import Button from "$lib/components/button.svelte";
     import KeyGrid from "$lib/components/key-grid.svelte";
-    import { CheckIcon, ZapIcon } from "@lucide/svelte";
+    import Popup from "$lib/components/popup.svelte";
 
+    let showDisclaimer = $state(true);
     let keyboard = $state(nullOf<Keyboard>());
     let processingUserLock = $state(false);
 
@@ -83,5 +86,25 @@
             <KeyGrid keys={keyboard.keys} />
         </div>
     </div>
+{/if}
+
+{#if showDisclaimer}
+<Popup
+    modal
+    close={() => showDisclaimer = false}
+    class="flex flex-col p-6 gap-3 max-w-140"
+>
+    <h2 class="flex items-center gap-2 text-xl font-bold"><TriangleAlertIcon /> Disclaimer</h2>
+    <p class="mb-4">
+        This is experimental software. Using it will void any and all warranties
+        from Ajazz Electronic Technology Co., Ltd. or any other entity. This software may
+        permanently damage your keyboard. By proceeding you assume all risk and
+        agree to hold harmless its author, the copyright holder, and any and all
+        other entities.
+    </p>
+    <Button onclick={() => showDisclaimer = false}>
+        <CheckIcon />I understand
+    </Button>
+</Popup>
 {/if}
 
