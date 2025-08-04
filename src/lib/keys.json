@@ -1,70 +1,410 @@
 {
-    "esc": "Esc",
-    "one": "1",
-    "two": "2",
-    "three": "3",
-    "four": "4",
-    "five": "5",
-    "six": "6",
-    "seven": "7",
-    "eight": "8",
-    "nine": "9",
-    "zero": "0",
-    "minus": "-",
-    "plus": "+",
-    "backspace": "<-",
-    "home": "Home",
-    "tab": "Tab",
-    "q": "Q",
-    "w": "W",
-    "e": "E",
-    "r": "R",
-    "t": "T",
-    "y": "Y",
-    "u": "U",
-    "i": "I",
-    "o": "O",
-    "p": "P",
-    "leftbracket": "[",
-    "rightbracket": "]",
-    "backslash": "\\",
-    "del": "Del",
-    "capslock": "Caps",
-    "a": "A",
-    "s": "S",
-    "d": "D",
-    "f": "F",
-    "g": "G",
-    "h": "H",
-    "j": "J",
-    "k": "K",
-    "l": "L",
-    "semicolon": ";",
-    "apostrophe": "'",
-    "enter": "Enter",
-    "pgup": "PgUp",
-    "shift": "Shift",
-    "z": "Z",
-    "x": "X",
-    "c": "C",
-    "v": "V",
-    "b": "B",
-    "n": "N",
-    "m": "M",
-    "comma": ",",
-    "dot": ".",
-    "slash": "/",
-    "rshift": "Shift",
-    "up": "↑",
-    "pgdown": "PgDn",
-    "ctrl": "Ctrl",
-    "win": "Win",
-    "alt": "Alt",
-    "spacebar": "⎯⎯⎯⎯⎯⎯",
-    "ralt": "Alt",
-    "fn": "Fn",
-    "rctrl": "Ctrl",
-    "left": "←",
-    "down": "↓",
-    "right": "→"
+    "esc": {
+        "name": "Esc",
+        "width": 1,
+        "column": 0,
+        "row": 0
+    },
+    "one": {
+        "name": "1",
+        "width": 1,
+        "column": 1,
+        "row": 0
+    },
+    "two": {
+        "name": "2",
+        "width": 1,
+        "column": 2,
+        "row": 0
+    },
+    "three": {
+        "name": "3",
+        "width": 1,
+        "column": 3,
+        "row": 0
+    },
+    "four": {
+        "name": "4",
+        "width": 1,
+        "column": 4,
+        "row": 0
+    },
+    "five": {
+        "name": "5",
+        "width": 1,
+        "column": 5,
+        "row": 0
+    },
+    "six": {
+        "name": "6",
+        "width": 1,
+        "column": 6,
+        "row": 0
+    },
+    "seven": {
+        "name": "7",
+        "width": 1,
+        "column": 7,
+        "row": 0
+    },
+    "eight": {
+        "name": "8",
+        "width": 1,
+        "column": 8,
+        "row": 0
+    },
+    "nine": {
+        "name": "9",
+        "width": 1,
+        "column": 9,
+        "row": 0
+    },
+    "zero": {
+        "name": "0",
+        "width": 1,
+        "column": 10,
+        "row": 0
+    },
+    "minus": {
+        "name": "-",
+        "width": 1,
+        "column": 11,
+        "row": 0
+    },
+    "plus": {
+        "name": "+",
+        "width": 1,
+        "column": 12,
+        "row": 0
+    },
+    "backspace": {
+        "name": "<-",
+        "width": 2,
+        "column": 13,
+        "row": 0
+    },
+    "home": {
+        "name": "Home",
+        "width": 1,
+        "column": 15,
+        "row": 0
+    },
+    "tab": {
+        "name": "Tab",
+        "width": 1.5,
+        "column": 0,
+        "row": 1
+    },
+    "q": {
+        "name": "Q",
+        "width": 1,
+        "column": 1.5,
+        "row": 1
+    },
+    "w": {
+        "name": "W",
+        "width": 1,
+        "column": 2.5,
+        "row": 1
+    },
+    "e": {
+        "name": "E",
+        "width": 1,
+        "column": 3.5,
+        "row": 1
+    },
+    "r": {
+        "name": "R",
+        "width": 1,
+        "column": 4.5,
+        "row": 1
+    },
+    "t": {
+        "name": "T",
+        "width": 1,
+        "column": 5.5,
+        "row": 1
+    },
+    "y": {
+        "name": "Y",
+        "width": 1,
+        "column": 6.5,
+        "row": 1
+    },
+    "u": {
+        "name": "U",
+        "width": 1,
+        "column": 7.5,
+        "row": 1
+    },
+    "i": {
+        "name": "I",
+        "width": 1,
+        "column": 8.5,
+        "row": 1
+    },
+    "o": {
+        "name": "O",
+        "width": 1,
+        "column": 9.5,
+        "row": 1
+    },
+    "p": {
+        "name": "P",
+        "width": 1,
+        "column": 10.5,
+        "row": 1
+    },
+    "leftbracket": {
+        "name": "[",
+        "width": 1,
+        "column": 11.5,
+        "row": 1
+    },
+    "rightbracket": {
+        "name": "]",
+        "width": 1,
+        "column": 12.5,
+        "row": 1
+    },
+    "backslash": {
+        "name": "\\",
+        "width": 1.5,
+        "column": 13.5,
+        "row": 1
+    },
+    "del": {
+        "name": "Del",
+        "width": 1,
+        "column": 15,
+        "row": 1
+    },
+    "capslock": {
+        "name": "Caps",
+        "width": 1.75,
+        "column": 0,
+        "row": 2
+    },
+    "a": {
+        "name": "A",
+        "width": 1,
+        "column": 1.75,
+        "row": 2
+    },
+    "s": {
+        "name": "S",
+        "width": 1,
+        "column": 2.75,
+        "row": 2
+    },
+    "d": {
+        "name": "D",
+        "width": 1,
+        "column": 3.75,
+        "row": 2
+    },
+    "f": {
+        "name": "F",
+        "width": 1,
+        "column": 4.75,
+        "row": 2
+    },
+    "g": {
+        "name": "G",
+        "width": 1,
+        "column": 5.75,
+        "row": 2
+    },
+    "h": {
+        "name": "H",
+        "width": 1,
+        "column": 6.75,
+        "row": 2
+    },
+    "j": {
+        "name": "J",
+        "width": 1,
+        "column": 7.75,
+        "row": 2
+    },
+    "k": {
+        "name": "K",
+        "width": 1,
+        "column": 8.75,
+        "row": 2
+    },
+    "l": {
+        "name": "L",
+        "width": 1,
+        "column": 9.75,
+        "row": 2
+    },
+    "semicolon": {
+        "name": ";",
+        "width": 1,
+        "column": 10.75,
+        "row": 2
+    },
+    "apostrophe": {
+        "name": "'",
+        "width": 1,
+        "column": 11.75,
+        "row": 2
+    },
+    "enter": {
+        "name": "Enter",
+        "width": 2.25,
+        "column": 12.75,
+        "row": 2
+    },
+    "pgup": {
+        "name": "PgUp",
+        "width": 1,
+        "column": 15,
+        "row": 2
+    },
+    "shift": {
+        "name": "Shift",
+        "width": 2.25,
+        "column": 0,
+        "row": 3
+    },
+    "z": {
+        "name": "Z",
+        "width": 1,
+        "column": 2.25,
+        "row": 3
+    },
+    "x": {
+        "name": "X",
+        "width": 1,
+        "column": 3.25,
+        "row": 3
+    },
+    "c": {
+        "name": "C",
+        "width": 1,
+        "column": 4.25,
+        "row": 3
+    },
+    "v": {
+        "name": "V",
+        "width": 1,
+        "column": 5.25,
+        "row": 3
+    },
+    "b": {
+        "name": "B",
+        "width": 1,
+        "column": 6.25,
+        "row": 3
+    },
+    "n": {
+        "name": "N",
+        "width": 1,
+        "column": 7.25,
+        "row": 3
+    },
+    "m": {
+        "name": "M",
+        "width": 1,
+        "column": 8.25,
+        "row": 3
+    },
+    "comma": {
+        "name": ",",
+        "width": 1,
+        "column": 9.25,
+        "row": 3
+    },
+    "dot": {
+        "name": ".",
+        "width": 1,
+        "column": 10.25,
+        "row": 3
+    },
+    "slash": {
+        "name": "/",
+        "width": 1,
+        "column": 11.25,
+        "row": 3
+    },
+    "rshift": {
+        "name": "Shift",
+        "width": 1.75,
+        "column": 12.25,
+        "row": 3
+    },
+    "up": {
+        "name": "↑",
+        "width": 1,
+        "column": 14,
+        "row": 3
+    },
+    "pgdown": {
+        "name": "PgDn",
+        "width": 1,
+        "column": 15,
+        "row": 3
+    },
+    "ctrl": {
+        "name": "Ctrl",
+        "width": 1.25,
+        "column": 0,
+        "row": 4
+    },
+    "win": {
+        "name": "Win",
+        "width": 1.25,
+        "column": 1.25,
+        "row": 4
+    },
+    "alt": {
+        "name": "Alt",
+        "width": 1.25,
+        "column": 2.5,
+        "row": 4
+    },
+    "spacebar": {
+        "name": "⎯⎯⎯⎯⎯⎯",
+        "width": 6.25,
+        "column": 3.75,
+        "row": 4
+    },
+    "ralt": {
+        "name": "Alt",
+        "width": 1,
+        "column": 10,
+        "row": 4
+    },
+    "fn": {
+        "name": "Fn",
+        "width": 1,
+        "column": 11,
+        "row": 4
+    },
+    "rctrl": {
+        "name": "Ctrl",
+        "width": 1,
+        "column": 12,
+        "row": 4
+    },
+    "left": {
+        "name": "←",
+        "width": 1,
+        "column": 13,
+        "row": 4
+    },
+    "down": {
+        "name": "↓",
+        "width": 1,
+        "column": 14,
+        "row": 4
+    },
+    "right": {
+        "name": "→",
+        "width": 1,
+        "column": 15,
+        "row": 4
+    }
 }
