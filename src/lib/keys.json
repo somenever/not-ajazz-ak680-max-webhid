@@ -71,8 +71,8 @@
         "column": 11,
         "row": 0
     },
-    "plus": {
-        "name": "+",
+    "equal": {
+        "name": "=",
         "width": 1,
         "column": 12,
         "row": 0

@@ -161,7 +161,7 @@ export const KEYMAP = [
     "slash",
     "rctrl",
     "",
-    "plus",
+    "equal",
     "rightbracket",
     "",
     "rshift",
