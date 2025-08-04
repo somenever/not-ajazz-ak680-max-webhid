@@ -39,21 +39,27 @@
 </script>
 
 {#if !keyboard}
-    <div class="bg-stone-800 p-8 rounded-2xl shadow-black/50 shadow-md max-w-140 flex flex-col gap-4">
+    <div
+        class="flex max-w-140 flex-col gap-4 rounded-2xl bg-stone-800 p-8 shadow-md shadow-black/50"
+    >
         <h1 class="text-2xl font-bold">Welcome to the Not AJAZZ AK680 MAX Web Utility</h1>
         <p class="mb-6">Connect your not-a-keyboard by pressing the button below</p>
-        <Button onclick={async () => {
-            keyboard = await connectKeyboard();
-            if (keyboard.firmwareID !== 2317) {
-                showUnsupportedKeyboard = true;
-            }
-        }}>
+        <Button
+            onclick={async () => {
+                keyboard = await connectKeyboard();
+                if (keyboard.firmwareID !== 2317) {
+                    showUnsupportedKeyboard = true;
+                }
+            }}
+        >
             <ZapIcon />Connect
         </Button>
     </div>
 {:else}
-    <div class="flex flex-col p-4 max-w-240 gap-4">
-        <div class="flex flex-col gap-2 w-full bg-stone-800 p-4 rounded-2xl shadow-black/50 shadow-md">
+    <div class="flex max-w-240 flex-col gap-4 p-4">
+        <div
+            class="flex w-full flex-col gap-2 rounded-2xl bg-stone-800 p-4 shadow-md shadow-black/50"
+        >
             <h2 class="text-xl font-bold">AJAZZ AK680 MAX</h2>
             <div class="flex gap-6">
                 <p class="text-green-400">Connected</p>
@@ -61,9 +67,9 @@
             </div>
         </div>
 
-        <div class="flex flex-col gap-2 bg-stone-800 p-4 rounded-2xl shadow-black/50 shadow-md">
+        <div class="flex flex-col gap-2 rounded-2xl bg-stone-800 p-4 shadow-md shadow-black/50">
             <h2 class="text-lg font-semibold">Layers</h2>
-            <div class="flex gap-2 flex-wrap">
+            <div class="flex flex-wrap gap-2">
                 {#each LAYERS as layer}
                     <Button
                         onclick={async () => {
@@ -87,62 +93,62 @@
             </div>
         </div>
 
-        <div class="bg-stone-800 p-4 rounded-2xl shadow-black/50 shadow-md">
+        <div class="rounded-2xl bg-stone-800 p-4 shadow-md shadow-black/50">
             <KeyGrid keys={keyboard.keys} />
         </div>
     </div>
 {/if}
 
-<div class="absolute bottom-4 left-0 right-0 flex items-center justify-center">
-    <span class="opacity-50 text-sm">
-        made with <span class="text-red-600">❤️</span> by someever
+<div class="absolute right-0 bottom-4 left-0 flex items-center justify-center">
+    <span class="text-sm opacity-50">
+        made with <span class="text-red-600">❤️</span>
+        by someever
     </span>
     <DotIcon class="opacity-50" />
-    <a href="https://github.com/somenever/not-ajazz-ak680-max-webhid" target="_blank" rel="noreferrer">
-        <img src={githubLogo} alt="GitHub logo" class="w-4 h-4" />
+    <a
+        href="https://github.com/somenever/not-ajazz-ak680-max-webhid"
+        target="_blank"
+        rel="noreferrer"
+    >
+        <img src={githubLogo} alt="GitHub logo" class="h-4 w-4" />
     </a>
 </div>
 
 {#if showDisclaimer}
-<Popup
-    modal
-    close={() => showDisclaimer = false}
-    class="flex flex-col p-6 gap-3 max-w-140"
->
-    <h2 class="flex flex-col items-center gap-2 text-xl font-bold">
-        <TriangleAlertIcon size={48} />
-        Disclaimer
-    </h2>
-    <p class="mb-4">
-        This is experimental software. Using it will void any and all warranties
-        from Ajazz Electronic Technology Co., Ltd. or any other entity. This software may
-        permanently damage your keyboard. By proceeding you assume all risk and
-        agree to hold harmless its author, the copyright holder, and any and all
-        other entities.
-    </p>
-    <Button onclick={() => showDisclaimer = false}>
-        <CheckIcon />I understand
-    </Button>
-</Popup>
+    <Popup modal close={() => (showDisclaimer = false)} class="flex max-w-140 flex-col gap-3 p-6">
+        <h2 class="flex flex-col items-center gap-2 text-xl font-bold">
+            <TriangleAlertIcon size={48} />
+            Disclaimer
+        </h2>
+        <p class="mb-4">
+            This is experimental software. Using it will void any and all warranties from Ajazz
+            Electronic Technology Co., Ltd. or any other entity. This software may permanently
+            damage your keyboard. By proceeding you assume all risk and agree to hold harmless its
+            author, the copyright holder, and any and all other entities.
+        </p>
+        <Button onclick={() => (showDisclaimer = false)}>
+            <CheckIcon />I understand
+        </Button>
+    </Popup>
 {/if}
 
 {#if showUnsupportedKeyboard}
-<Popup
-    modal
-    close={() => showUnsupportedKeyboard = false}
-    class="flex flex-col p-6 gap-3 max-w-140"
->
-    <h2 class="flex flex-col items-center gap-2 text-xl font-bold">
-        <TriangleAlertIcon size={48} />
-        Unsupported Keyboard
-    </h2>
-    <p class="mb-4">
-        This software has only been tested with the AJAZZ AK680 MAX No RGB keyboard (ID 2317).
-        Your keyboard (ID {keyboard?.firmwareID ?? "unknown"}) may be different and may not work as intended.
-    </p>
-    <Button onclick={() => showUnsupportedKeyboard = false}>
-        <ArrowRightIcon />Proceed anyway
-    </Button>
-</Popup>
+    <Popup
+        modal
+        close={() => (showUnsupportedKeyboard = false)}
+        class="flex max-w-140 flex-col gap-3 p-6"
+    >
+        <h2 class="flex flex-col items-center gap-2 text-xl font-bold">
+            <TriangleAlertIcon size={48} />
+            Unsupported Keyboard
+        </h2>
+        <p class="mb-4">
+            This software has only been tested with the AJAZZ AK680 MAX No RGB keyboard (ID 2317).
+            Your keyboard (ID {keyboard?.firmwareID ?? "unknown"}) may be different and may not work
+            as intended.
+        </p>
+        <Button onclick={() => (showUnsupportedKeyboard = false)}>
+            <ArrowRightIcon />Proceed anyway
+        </Button>
+    </Popup>
 {/if}
-
