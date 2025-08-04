@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { ArrowRightIcon, CheckIcon, TriangleAlertIcon, ZapIcon } from "@lucide/svelte";
+    import { ArrowRightIcon, CheckIcon, DotIcon, TriangleAlertIcon, ZapIcon } from "@lucide/svelte";
 
     import { nullOf } from "$lib";
     import {
@@ -14,6 +14,7 @@
     import Button from "$lib/components/button.svelte";
     import KeyGrid from "$lib/components/key-grid.svelte";
     import Popup from "$lib/components/popup.svelte";
+    import githubLogo from "$lib/assets/github.svg";
 
     let showDisclaimer = $state(true);
     let showUnsupportedKeyboard = $state(false);
@@ -91,6 +92,16 @@
         </div>
     </div>
 {/if}
+
+<div class="absolute bottom-4 left-0 right-0 flex items-center justify-center">
+    <span class="opacity-50 text-sm">
+        made with <span class="text-red-600">❤️</span> by someever
+    </span>
+    <DotIcon class="opacity-50" />
+    <a href="https://github.com/somenever/not-ajazz-ak680-max-webhid" target="_blank" rel="noreferrer">
+        <img src={githubLogo} alt="GitHub logo" class="w-4 h-4" />
+    </a>
+</div>
 
 {#if showDisclaimer}
 <Popup
