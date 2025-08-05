@@ -1,8 +1,16 @@
 <script lang="ts">
-    import { ArrowRightIcon, CheckIcon, DotIcon, TriangleAlertIcon, ZapIcon } from "@lucide/svelte";
+    import {
+        ArrowRightIcon,
+        CheckIcon,
+        DotIcon,
+        SquareArrowDownIcon,
+        TriangleAlertIcon,
+        ZapIcon,
+    } from "@lucide/svelte";
 
     import { nullOf } from "$lib";
     import {
+        applyKeys,
         connectKeyboard,
         getKeys,
         isAk680MaxVendorControl,
@@ -15,9 +23,12 @@
     import KeyGrid from "$lib/components/key-grid.svelte";
     import Popup from "$lib/components/popup.svelte";
     import githubLogo from "$lib/assets/github.svg";
+    import ToggleButton from "$lib/components/toggle-button.svelte";
 
     let showDisclaimer = $state(true);
     let showUnsupportedKeyboard = $state(false);
+    let showApplyKeysButton = $state(false);
+    let showAllActuations = $state(false);
     let keyboard = $state(nullOf<Keyboard>());
     let processingUserLock = $state(false);
 
@@ -93,8 +104,29 @@
             </div>
         </div>
 
-        <div class="rounded-2xl bg-stone-800 p-4 shadow-md shadow-black/50">
-            <KeyGrid keys={keyboard.keys} />
+        <div class="flex flex-col gap-4 rounded-2xl bg-stone-800 p-4 shadow-md shadow-black/50">
+            <KeyGrid
+                keys={keyboard.keys}
+                onActuationChange={() => (showApplyKeysButton = true)}
+                {showAllActuations}
+            />
+            <div class="flex gap-2">
+                <Button
+                    onclick={async () => {
+                        processingUserLock = true;
+                        console.debug(keyboard!.keys);
+                        await applyKeys(keyboard!);
+                        processingUserLock = false;
+                    }}
+                    disabled={processingUserLock || !showApplyKeysButton}
+                    class="flex-1"
+                >
+                    <CheckIcon />Apply
+                </Button>
+                <ToggleButton bind:active={showAllActuations}>
+                    <SquareArrowDownIcon />
+                </ToggleButton>
+            </div>
         </div>
     </div>
 {/if}

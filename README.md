@@ -5,7 +5,7 @@ This project is presented as a work of fiction, solely for the purpose of entert
 
 ## Supported Features
 - Layer switching
-- Actuation point display
+- Viewing and changing actuation points
 
 ## Tested Models
 - AK680 MAX Black No RGB (Firmware: ID2317_V303)

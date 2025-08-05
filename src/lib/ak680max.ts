@@ -3,6 +3,8 @@ import { assert } from "$lib";
 export const FILTER_AK680_MAX = { vendorId: 0x3151, productId: 0x502c };
 export const LAYERS = [0, 1, 2, 3] as const;
 
+const CHUNK_COUNT = 4;
+
 export type Keyboard = {
     firmwareID: number;
     activeLayer: Layer;
@@ -57,6 +59,57 @@ export function getActiveLayerKeysActuationChunkPayload(
         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
         0x00, 0x00, 0x00, 0x00,
+    ]);
+}
+
+export function setKeyActuationPreparePayload(
+    index: number,
+): Uint8Array<ArrayBuffer> {
+    // prettier-ignore
+    return new Uint8Array([
+        0x65, 0x07, 0x01, index, 0x00, 0x00, 0x00, 0x92 - index, 0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00,
+    ]);
+}
+
+export function setKeyActuationEndForDirectionPayload(
+    direction: "up" | "down",
+): Uint8Array<ArrayBuffer> {
+    const isUp = direction === "up" ? 0x01 : 0x00;
+    // prettier-ignore
+    return new Uint8Array([
+        0x65, isUp, 0x01, 4, isUp, 0x00, 0x00, 0x99 - 4 - isUp * 2, 0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00,
+    ]);
+}
+
+export function setKeyActuationChunkPayload(
+    chunk: number,
+    keys: Key[],
+    direction: "up" | "down",
+): Uint8Array<ArrayBuffer> {
+    const isUp = direction === "up" ? 0x01 : 0x00;
+    const keysActuation = keys.map((key) =>
+        Math.floor((isUp ? key.upActuation : key.downActuation) * 100),
+    );
+    assert(keysActuation.length <= 28, "a chunk can only have 28 keys");
+    if (keysActuation.length < 28) {
+        const oldLength = keysActuation.length;
+        keysActuation.length = 28;
+        keysActuation.fill(0, oldLength, -1);
+    }
+    console.log(keysActuation);
+    // prettier-ignore
+    return new Uint8Array([
+        0x65, isUp, 0x01, chunk, 0x00, 0x00, 0x00, 0x99 - chunk - isUp, ...new Uint8Array(new Uint16Array(keysActuation).buffer),
     ]);
 }
 
@@ -198,33 +251,50 @@ export async function getKeys(device: HIDDevice): Promise<Key[]> {
         };
     }
 
-    console.debug("DOWN");
-    for (let chunk = 0; chunk < 4; chunk++) {
-        console.debug("CHUNK", chunk);
-        await send(
-            device,
-            getActiveLayerKeysActuationChunkPayload(chunk, "down"),
-        );
-        const payload = await receive(device);
-        new Uint16Array(payload.buffer).forEach((key, index) => {
-            keys[chunk * 32 + index].downActuation = key / 100;
-        });
-    }
-
-    console.debug("UP");
-    for (let chunk = 0; chunk < 4; chunk++) {
-        console.debug("CHUNK", chunk);
-        await send(
-            device,
-            getActiveLayerKeysActuationChunkPayload(chunk, "up"),
-        );
-        const payload = await receive(device);
-        new Uint16Array(payload.buffer).forEach((key, index) => {
-            keys[chunk * 32 + index].upActuation = key / 100;
-        });
+    for (const direction of ["down", "up"] as const) {
+        console.debug(direction);
+        for (let chunk = 0; chunk < CHUNK_COUNT; chunk++) {
+            console.debug("CHUNK", chunk);
+            await send(
+                device,
+                getActiveLayerKeysActuationChunkPayload(chunk, direction),
+            );
+            const payload = await receive(device);
+            new Uint16Array(payload.buffer).forEach((actuation, index) => {
+                const key = keys[chunk * 32 + index];
+                if (direction === "down") {
+                    key.downActuation = actuation / 100;
+                } else {
+                    key.upActuation = actuation / 100;
+                }
+            });
+        }
     }
 
     return keys;
+}
+
+export async function applyKeys(keyboard: Keyboard): Promise<void> {
+    await send(keyboard.device, setKeyActuationPreparePayload(0));
+    await send(keyboard.device, setKeyActuationPreparePayload(1));
+    await send(keyboard.device, setKeyActuationPreparePayload(2));
+
+    for (const direction of ["down", "up"] as const) {
+        for (let chunk = 0; chunk < CHUNK_COUNT; chunk++) {
+            await send(
+                keyboard.device,
+                setKeyActuationChunkPayload(
+                    chunk,
+                    keyboard.keys.slice(chunk * 28, (chunk + 1) * 28),
+                    direction,
+                ),
+            );
+        }
+        await send(
+            keyboard.device,
+            setKeyActuationEndForDirectionPayload(direction),
+        );
+    }
 }
 
 export const isAk680MaxVendorControl = (device: HIDDevice): boolean =>
