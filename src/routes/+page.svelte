@@ -137,6 +137,8 @@
         by someever
     </span>
     <DotIcon class="opacity-50" />
+    <span class="text-sm opacity-50">not affiliated with or endorsed by ajazz</span>
+    <DotIcon class="opacity-50" />
     <a
         href="https://github.com/somenever/not-ajazz-ak680-max-webhid"
         target="_blank"
