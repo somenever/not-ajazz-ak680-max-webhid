@@ -1,15 +1,21 @@
 {
-    "name": "Not AK680 Max Utility",
+    "name": "Not AK680 MAX Web Utility",
+    "short_name": "Not AK680 MAX",
     "categories": ["utilities"],
     "icons": [
+        {
+            "src": "/icon_512.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        },
         {
             "src": "/icon_256.png",
             "sizes": "256x256",
             "type": "image/png"
         },
         {
-            "src": "/icon_128.png",
-            "sizes": "128x128",
+            "src": "/icon_192.png",
+            "sizes": "192x192",
             "type": "image/png"
         },
         {
@@ -21,6 +27,7 @@
     "start_url": "/",
     "background_color": "#1C1917",
     "theme_color": "#E7000B",
-    "orientation": "landscape"
+    "orientation": "landscape",
+    "display": "standalone"
 }
 
