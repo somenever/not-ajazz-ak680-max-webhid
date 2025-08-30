@@ -1,0 +1,26 @@
+{
+    "name": "Not AK680 Max Utility",
+    "categories": ["utilities"],
+    "icons": [
+        {
+            "src": "/icon_256.png",
+            "sizes": "256x256",
+            "type": "image/png"
+        },
+        {
+            "src": "/icon_128.png",
+            "sizes": "128x128",
+            "type": "image/png"
+        },
+        {
+            "src": "/icon.png",
+            "sizes": "64x64",
+            "type": "image/png"
+        }
+    ],
+    "start_url": "/",
+    "background_color": "#1C1917",
+    "theme_color": "#E7000B",
+    "orientation": "landscape"
+}
+
