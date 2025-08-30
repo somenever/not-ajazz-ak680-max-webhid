@@ -7,7 +7,7 @@
 
 <svelte:head>
     <link rel="icon" href={favicon} />
-    <title>Not AJAZZ AK680 Max WebHID</title>
+    <title>Not AJAZZ AK680 MAX Web Utility</title>
 </svelte:head>
 
 <main class="flex h-screen w-screen items-center justify-center bg-stone-900 text-white">
