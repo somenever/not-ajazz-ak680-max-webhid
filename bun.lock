@@ -4,6 +4,7 @@
     "": {
       "name": "svelte-project",
       "dependencies": {
+        "@lucide/lab": "^0.1.2",
         "@lucide/svelte": "^0.536.0",
       },
       "devDependencies": {
@@ -86,6 +87,8 @@
     "@jridgewell/sourcemap-codec": ["@jridgewell/sourcemap-codec@1.5.4", "", {}, "sha512-VT2+G1VQs/9oz078bLrYbecdZKs912zQlkelYpuf+SXF+QvZDYJlbx/LSx+meSAwdDFnF8FVXW92AVjjkVmgFw=="],
 
     "@jridgewell/trace-mapping": ["@jridgewell/trace-mapping@0.3.29", "", { "dependencies": { "@jridgewell/resolve-uri": "^3.1.0", "@jridgewell/sourcemap-codec": "^1.4.14" } }, "sha512-uw6guiW/gcAGPDhLmd77/6lW8QLeiV5RUTsAX46Db6oLhGaVj4lhnPwb184s1bkc8kdVg/+h988dro8GRDpmYQ=="],
+
+    "@lucide/lab": ["@lucide/lab@0.1.2", "", {}, "sha512-VprF2BJa7ZuTGOhUd5cf8tHJXyL63wdxcGieAiVVoR9hO0YmPsnZO0AGqDiX2/br+/MC6n8BoJcmPilltOXIJA=="],
 
     "@lucide/svelte": ["@lucide/svelte@0.536.0", "", { "peerDependencies": { "svelte": "^5" } }, "sha512-YAeoWU+0B/RriFZZ3wHno1FMkbrVrFdityuo2B0YuphD0vtJWXStzZkWLGVhT3jMb7zhugmhayIg+gI4+AZu1g=="],
 

@@ -3,6 +3,9 @@ import { assert } from "$lib";
 export const FILTER_AK680_MAX = { vendorId: 0x3151, productId: 0x502c };
 export const LAYERS = [0, 1, 2, 3] as const;
 
+export const MIN_ACTUATION = 0.1;
+export const MAX_ACTUATION = 3.2;
+
 const CHUNK_COUNT = 4;
 
 export type Keyboard = {

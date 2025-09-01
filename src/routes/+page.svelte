@@ -3,10 +3,11 @@
         ArrowRightIcon,
         CheckIcon,
         DotIcon,
-        SquareArrowDownIcon,
+        Icon,
         TriangleAlertIcon,
         ZapIcon,
     } from "@lucide/svelte";
+    import { arrowsUpDownSquare } from "@lucide/lab";
 
     import { nullOf } from "$lib";
     import {
@@ -106,7 +107,7 @@
 
         <div class="flex flex-col gap-4 rounded-2xl bg-stone-800 p-4 shadow-md shadow-black/50">
             <KeyGrid
-                keys={keyboard.keys}
+                bind:keys={keyboard.keys}
                 onActuationChange={() => (showApplyKeysButton = true)}
                 {showAllActuations}
             />
@@ -124,7 +125,7 @@
                     <CheckIcon />Apply
                 </Button>
                 <ToggleButton bind:active={showAllActuations}>
-                    <SquareArrowDownIcon />
+                    <Icon iconNode={arrowsUpDownSquare} />
                 </ToggleButton>
             </div>
         </div>
