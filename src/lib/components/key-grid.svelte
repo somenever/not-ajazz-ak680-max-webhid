@@ -2,7 +2,7 @@
     import { SquareDashedMousePointerIcon } from "@lucide/svelte";
     import { SvelteSet } from "svelte/reactivity";
 
-    import { KEYMAP, MAX_ACTUATION, MIN_ACTUATION, type Key } from "$lib/ak680max";
+    import { KEYMAP, type Key } from "$lib/ak680max";
     import keyDefs from "$lib/keys.json";
     import ActuationSlider from "$lib/components/actuation-slider.svelte";
     import ActuationInput from "./actuation-input.svelte";
@@ -24,6 +24,15 @@
             selectedKeys.add(key);
         } else {
             selectedKeys.delete(key);
+        }
+    }
+
+    export function selectAll() {
+        isAddingSelections = !selectedKeys.has(0);
+        for (const key of keys) {
+            if (KEYMAP[key.code]) {
+                toggleSelection(key.code);
+            }
         }
     }
 
@@ -110,7 +119,7 @@
                     isDragging = true;
                 }}
                 onclick={() => toggleSelection(key.code)}
-                onmousemove={(e) => isDragging && toggleSelection(key.code)}
+                onmousemove={() => isDragging && toggleSelection(key.code)}
                 style:grid-column="{keyDef.column * unitMultiplier + 1} / span {keyDef.width *
                     unitMultiplier}"
                 style:grid-row={keyDef.row + 1}

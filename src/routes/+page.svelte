@@ -4,6 +4,7 @@
         CheckIcon,
         DotIcon,
         Icon,
+        SquareDashedIcon,
         TriangleAlertIcon,
         ZapIcon,
     } from "@lucide/svelte";
@@ -25,12 +26,15 @@
     import Popup from "$lib/components/popup.svelte";
     import githubLogo from "$lib/assets/github.svg";
     import ToggleButton from "$lib/components/toggle-button.svelte";
+    import IconButton from "$lib/components/icon-button.svelte";
 
     let showDisclaimer = $state(true);
     let showUnsupportedKeyboard = $state(false);
     let showApplyKeysButton = $state(false);
     let showAllActuations = $state(false);
     let keyboard = $state(nullOf<Keyboard>());
+
+    let keyGrid: KeyGrid;
     let processingUserLock = $state(false);
 
     $effect(() => {
@@ -107,6 +111,7 @@
 
         <div class="flex flex-col gap-4 rounded-2xl bg-stone-800 p-4 shadow-md shadow-black/50">
             <KeyGrid
+                bind:this={keyGrid}
                 bind:keys={keyboard.keys}
                 onActuationChange={() => (showApplyKeysButton = true)}
                 {showAllActuations}
@@ -124,6 +129,9 @@
                 >
                     <CheckIcon />Apply
                 </Button>
+                <IconButton onclick={() => keyGrid.selectAll()}>
+                    <SquareDashedIcon />
+                </IconButton>
                 <ToggleButton bind:active={showAllActuations}>
                     <Icon iconNode={arrowsUpDownSquare} />
                 </ToggleButton>
