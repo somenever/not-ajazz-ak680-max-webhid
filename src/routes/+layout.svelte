@@ -12,6 +12,8 @@
     {/if}
 </svelte:head>
 
-<main class="flex h-screen w-screen items-center justify-center bg-stone-900 text-white">
+<main
+    class="flex h-screen w-screen items-center justify-center overflow-y-auto bg-stone-900 text-white"
+>
     {@render children?.()}
 </main>

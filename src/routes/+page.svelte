@@ -54,107 +54,113 @@
     });
 </script>
 
-{#if !keyboard}
-    <div
-        class="flex max-w-140 flex-col gap-4 rounded-2xl bg-stone-800 p-8 shadow-md shadow-black/50"
-    >
-        <h1 class="text-2xl font-bold">Welcome to the Not AJAZZ AK680 MAX Web Utility</h1>
-        <p class="mb-6">Connect your not-a-keyboard by pressing the button below</p>
-        <Button
-            onclick={async () => {
-                keyboard = await connectKeyboard();
-                if (keyboard.firmwareID !== 2317) {
-                    showUnsupportedKeyboard = true;
-                }
-            }}
-        >
-            <ZapIcon />Connect
-        </Button>
-    </div>
-{:else}
-    <div class="flex max-w-240 flex-col gap-4 p-4">
-        <div
-            class="flex w-full flex-col gap-2 rounded-2xl bg-stone-800 p-4 shadow-md shadow-black/50"
-        >
-            <h2 class="text-xl font-bold">AJAZZ AK680 MAX</h2>
-            <div class="flex gap-6">
-                <p class="text-green-400">Connected</p>
-                <p class="opacity-50">ID: {keyboard.firmwareID}</p>
-            </div>
-        </div>
+<div class="flex h-full flex-col items-center">
+    <div class="flex-1"></div>
 
-        <div class="flex flex-col gap-2 rounded-2xl bg-stone-800 p-4 shadow-md shadow-black/50">
-            <h2 class="text-lg font-semibold">Layers</h2>
-            <div class="flex flex-wrap gap-2">
-                {#each LAYERS as layer}
+    {#if !keyboard}
+        <div
+            class="flex max-w-140 flex-col gap-4 rounded-2xl bg-stone-800 p-8 shadow-md shadow-black/50"
+        >
+            <h1 class="text-2xl font-bold">Welcome to the Not AJAZZ AK680 MAX Web Utility</h1>
+            <p class="mb-6">Connect your not-a-keyboard by pressing the button below</p>
+            <Button
+                onclick={async () => {
+                    keyboard = await connectKeyboard();
+                    if (keyboard.firmwareID !== 2317) {
+                        showUnsupportedKeyboard = true;
+                    }
+                }}
+            >
+                <ZapIcon />Connect
+            </Button>
+        </div>
+    {:else}
+        <div class="flex max-w-240 flex-1 flex-col gap-4 p-4">
+            <div
+                class="flex w-full flex-col gap-2 rounded-2xl bg-stone-800 p-4 shadow-md shadow-black/50"
+            >
+                <h2 class="text-xl font-bold">AJAZZ AK680 MAX</h2>
+                <div class="flex gap-6">
+                    <p class="text-green-400">Connected</p>
+                    <p class="opacity-50">ID: {keyboard.firmwareID}</p>
+                </div>
+            </div>
+
+            <div class="flex flex-col gap-2 rounded-2xl bg-stone-800 p-4 shadow-md shadow-black/50">
+                <h2 class="text-lg font-semibold">Layers</h2>
+                <div class="flex flex-wrap gap-2">
+                    {#each LAYERS as layer}
+                        <Button
+                            onclick={async () => {
+                                processingUserLock = true;
+                                await send(keyboard!.device, setLayerPayload(layer));
+                                keyboard!.activeLayer = layer;
+
+                                setTimeout(async () => {
+                                    keyboard!.keys = await getKeys(keyboard!.device);
+                                    processingUserLock = false;
+                                }, 500);
+                            }}
+                            disabled={processingUserLock}
+                        >
+                            {#if keyboard!.activeLayer === layer}
+                                <CheckIcon />
+                            {/if}
+                            Layer {layer + 1}
+                        </Button>
+                    {/each}
+                </div>
+            </div>
+
+            <div class="flex flex-col gap-4 rounded-2xl bg-stone-800 p-4 shadow-md shadow-black/50">
+                <KeyGrid
+                    bind:this={keyGrid}
+                    bind:keys={keyboard.keys}
+                    onActuationChange={() => (showApplyKeysButton = true)}
+                    {showAllActuations}
+                />
+                <div class="flex gap-2">
                     <Button
                         onclick={async () => {
                             processingUserLock = true;
-                            await send(keyboard!.device, setLayerPayload(layer));
-                            keyboard!.activeLayer = layer;
-
-                            setTimeout(async () => {
-                                keyboard!.keys = await getKeys(keyboard!.device);
-                                processingUserLock = false;
-                            }, 500);
+                            console.debug(keyboard!.keys);
+                            await applyKeys(keyboard!);
+                            processingUserLock = false;
                         }}
-                        disabled={processingUserLock}
+                        disabled={processingUserLock || !showApplyKeysButton}
+                        class="flex-1"
                     >
-                        {#if keyboard!.activeLayer === layer}
-                            <CheckIcon />
-                        {/if}
-                        Layer {layer + 1}
+                        <CheckIcon />Apply
                     </Button>
-                {/each}
+                    <IconButton onclick={() => keyGrid.selectAll()}>
+                        <SquareDashedIcon />
+                    </IconButton>
+                    <ToggleButton bind:active={showAllActuations}>
+                        <Icon iconNode={arrowsUpDownSquare} />
+                    </ToggleButton>
+                </div>
             </div>
         </div>
+    {/if}
 
-        <div class="flex flex-col gap-4 rounded-2xl bg-stone-800 p-4 shadow-md shadow-black/50">
-            <KeyGrid
-                bind:this={keyGrid}
-                bind:keys={keyboard.keys}
-                onActuationChange={() => (showApplyKeysButton = true)}
-                {showAllActuations}
-            />
-            <div class="flex gap-2">
-                <Button
-                    onclick={async () => {
-                        processingUserLock = true;
-                        console.debug(keyboard!.keys);
-                        await applyKeys(keyboard!);
-                        processingUserLock = false;
-                    }}
-                    disabled={processingUserLock || !showApplyKeysButton}
-                    class="flex-1"
-                >
-                    <CheckIcon />Apply
-                </Button>
-                <IconButton onclick={() => keyGrid.selectAll()}>
-                    <SquareDashedIcon />
-                </IconButton>
-                <ToggleButton bind:active={showAllActuations}>
-                    <Icon iconNode={arrowsUpDownSquare} />
-                </ToggleButton>
-            </div>
-        </div>
+    <div class="flex-1"></div>
+
+    <div class="flex items-center justify-center p-4">
+        <span class="text-sm opacity-50">
+            made with <span class="text-red-600">❤️</span>
+            by someever
+        </span>
+        <DotIcon class="opacity-50" />
+        <span class="text-sm opacity-50">not affiliated with or endorsed by ajazz</span>
+        <DotIcon class="opacity-50" />
+        <a
+            href="https://github.com/somenever/not-ajazz-ak680-max-webhid"
+            target="_blank"
+            rel="noreferrer"
+        >
+            <img src={githubLogo} alt="GitHub logo" class="h-4 w-4" />
+        </a>
     </div>
-{/if}
-
-<div class="absolute right-0 bottom-4 left-0 flex items-center justify-center">
-    <span class="text-sm opacity-50">
-        made with <span class="text-red-600">❤️</span>
-        by someever
-    </span>
-    <DotIcon class="opacity-50" />
-    <span class="text-sm opacity-50">not affiliated with or endorsed by ajazz</span>
-    <DotIcon class="opacity-50" />
-    <a
-        href="https://github.com/somenever/not-ajazz-ak680-max-webhid"
-        target="_blank"
-        rel="noreferrer"
-    >
-        <img src={githubLogo} alt="GitHub logo" class="h-4 w-4" />
-    </a>
 </div>
 
 {#if showDisclaimer}
