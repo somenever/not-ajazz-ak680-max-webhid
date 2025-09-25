@@ -6,79 +6,79 @@
         "row": 0
     },
     "one": {
-        "name": "1",
+        "name": "1 !",
         "width": 1,
         "column": 1,
         "row": 0
     },
     "two": {
-        "name": "2",
+        "name": "2 @",
         "width": 1,
         "column": 2,
         "row": 0
     },
     "three": {
-        "name": "3",
+        "name": "3 #",
         "width": 1,
         "column": 3,
         "row": 0
     },
     "four": {
-        "name": "4",
+        "name": "4 $",
         "width": 1,
         "column": 4,
         "row": 0
     },
     "five": {
-        "name": "5",
+        "name": "5 %",
         "width": 1,
         "column": 5,
         "row": 0
     },
     "six": {
-        "name": "6",
+        "name": "6 ^",
         "width": 1,
         "column": 6,
         "row": 0
     },
     "seven": {
-        "name": "7",
+        "name": "7 &",
         "width": 1,
         "column": 7,
         "row": 0
     },
     "eight": {
-        "name": "8",
+        "name": "8 *",
         "width": 1,
         "column": 8,
         "row": 0
     },
     "nine": {
-        "name": "9",
+        "name": "9 (",
         "width": 1,
         "column": 9,
         "row": 0
     },
     "zero": {
-        "name": "0",
+        "name": "0 )",
         "width": 1,
         "column": 10,
         "row": 0
     },
     "minus": {
-        "name": "-",
+        "name": "- _",
         "width": 1,
         "column": 11,
         "row": 0
     },
     "equal": {
-        "name": "=",
+        "name": "= +",
         "width": 1,
         "column": 12,
         "row": 0
     },
     "backspace": {
-        "name": "<-",
+        "name": "⟵",
         "width": 2,
         "column": 13,
         "row": 0
@@ -312,19 +312,19 @@
         "row": 3
     },
     "comma": {
-        "name": ",",
+        "name": ", <",
         "width": 1,
         "column": 9.25,
         "row": 3
     },
     "dot": {
-        "name": ".",
+        "name": ". >",
         "width": 1,
         "column": 10.25,
         "row": 3
     },
     "slash": {
-        "name": "/",
+        "name": "/ ?",
         "width": 1,
         "column": 11.25,
         "row": 3

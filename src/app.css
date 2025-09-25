@@ -1,13 +1,13 @@
 @import 'tailwindcss';
 
 @font-face {
-    font-family: "Annotation Mono";
+    font-family: "Rubik Keycaps";
     src:
-        url("/AnnotationMono-VF.ttf") format("truetype") tech(variations),
-        url("/AnnotationMono-VF.woff2") format("woff2") tech(variations);
+        url("/Rubik-Keycaps.ttf") format("truetype") tech(variations),
+        url("/Rubik-Keycaps.woff2") format("woff2") tech(variations);
 }
 
 @theme {
-    --font-keys: "Annotation Mono";
+    --font-keys: "Rubik Keycaps";
 }
 
