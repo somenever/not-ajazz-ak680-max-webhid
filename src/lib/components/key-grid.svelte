@@ -118,7 +118,10 @@
                     isAddingSelections = !selectedKeys.has(key.code);
                     isDragging = true;
                 }}
-                onclick={() => toggleSelection(key.code)}
+                onclick={() => {
+                    if (selectedKeys.size === 1) selectedKeys.clear();
+                    toggleSelection(key.code);
+                }}
                 onmousemove={() => isDragging && toggleSelection(key.code)}
                 style:grid-column="{keyDef.column * unitMultiplier + 1} / span {keyDef.width *
                     unitMultiplier}"
