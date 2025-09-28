@@ -37,8 +37,14 @@
     onmouseup={() => (dragging = null)}
 />
 
-<div class="relative flex h-full w-1 flex-col bg-stone-500 select-none" bind:this={slider}>
-    <div class="bg-blue-400" style:height="{((topValue ?? MIN_ACTUATION) / range) * 100}%"></div>
+<div
+    class="relative flex h-full w-1 flex-col rounded-lg bg-stone-500 select-none"
+    bind:this={slider}
+>
+    <div
+        class="rounded-t-lg bg-blue-400"
+        style:height="{((topValue ?? MIN_ACTUATION) / range) * 100}%"
+    ></div>
     <div class="relative">
         <button
             class="absolute top-1/2 left-1/2 h-2.5 w-2.5 -translate-1/2 rounded-full border-none bg-blue-200 outline-none"
@@ -80,6 +86,6 @@
     </div>
     <div
         style:height="{(1 - (bottomValue ?? MAX_ACTUATION) / range) * 100}%"
-        class="bg-yellow-300"
+        class="rounded-b-lg bg-yellow-300"
     ></div>
 </div>
