@@ -110,7 +110,9 @@
             <button
                 class={[
                     "font-keys group relative flex items-center justify-center rounded-md bg-stone-900 p-3 select-none",
-                    selectedKeys.has(key.code) && "outline-2 -outline-offset-1 outline-red-600",
+                    selectedKeys.has(key.code)
+                        ? "outline-2 -outline-offset-1 outline-red-600"
+                        : "focus-visible:outline-none",
                     isDragging ? "cursor-grabbing" : "cursor-grab",
                 ]}
                 onmousedown={() => {
