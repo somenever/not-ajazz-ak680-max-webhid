@@ -4,11 +4,15 @@
     let {
         class: clazz = "",
         disabled = false,
+        min = MIN_ACTUATION,
+        max = MAX_ACTUATION,
         onActuationChange,
         value = $bindable(0),
     }: {
         class?: any[] | string;
         disabled?: boolean;
+        min?: number;
+        max?: number;
         onActuationChange?: () => void;
         value: number;
     } = $props();
@@ -29,8 +33,8 @@
         ...(typeof clazz === "string" ? [clazz] : clazz),
     ]}
     type="number"
-    min={MIN_ACTUATION}
-    max={MAX_ACTUATION}
+    {min}
+    {max}
     step={0.01}
     oninput={onActuationChange}
     onchange={validateActuation}
