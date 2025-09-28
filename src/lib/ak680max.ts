@@ -33,7 +33,6 @@ function packetHeader(
 }
 
 export function setLayerPayload(layer: Layer): Uint8Array<ArrayBuffer> {
-    const layerMagicByte = [0xfb, 0xfa, 0xf9, 0xf8][layer];
     // prettier-ignore
     return new Uint8Array([
         ...packetHeader(0x04, [layer, 0, 0, 0, 0, 0]), 0x00, 0x00, 0x00, 0x00,
@@ -67,7 +66,37 @@ export function getActiveLayerKeysActuationChunkPayload(
     chunk: number,
     direction: "press" | "release",
 ): Uint8Array<ArrayBuffer> {
-    const isUp = direction === "release" ? 1 : 0;
+    const isUp = direction === "press" ? 0x00 : 0x01;
+    // prettier-ignore
+    return new Uint8Array([
+        ...packetHeader(0xe5, [isUp, 1, chunk, 0, 0, 0]), 0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00,
+    ]);
+}
+
+export function getActiveLayerKeysRapidTriggerChunkPayload(
+    chunk: number,
+): Uint8Array<ArrayBuffer> {
+    // prettier-ignore
+    return new Uint8Array([
+        ...packetHeader(0xe5, [0x07, 1, chunk, 0, 0, 0]), 0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00,
+    ]);
+}
+
+export function getActiveLayerKeysRapidTriggerSensitivityChunkPayload(
+    chunk: number,
+    direction: "press" | "release",
+): Uint8Array<ArrayBuffer> {
+    const isUp = direction === "press" ? 0x02 : 0x03;
     // prettier-ignore
     return new Uint8Array([
         ...packetHeader(0xe5, [isUp, 1, chunk, 0, 0, 0]), 0x00, 0x00, 0x00, 0x00,
@@ -297,23 +326,56 @@ export async function getKeys(device: HIDDevice): Promise<Key[]> {
         };
     }
 
+    for (let chunk = 0; chunk < 2; chunk++) {
+        await send(device, getActiveLayerKeysRapidTriggerChunkPayload(chunk));
+        const payload = await receive(device);
+        const chunkKeys = new Uint8Array(payload.buffer);
+        for (let index = 0; index < chunkKeys.length; ++index) {
+            const key = chunk * 64 + index;
+            if (key >= keys.length) break;
+            keys[key].rapidTrigger = chunkKeys[index] === 0x80;
+        }
+    }
+
     for (const direction of ["press", "release"] as const) {
         console.debug(direction);
         for (let chunk = 0; chunk < CHUNK_COUNT; chunk++) {
             console.debug("CHUNK", chunk);
-            await send(
-                device,
-                getActiveLayerKeysActuationChunkPayload(chunk, direction),
-            );
-            const payload = await receive(device);
-            new Uint16Array(payload.buffer).forEach((actuation, index) => {
-                const key = keys[chunk * 32 + index];
-                if (direction === "press") {
-                    key.downActuation = actuation / 100;
-                } else {
-                    key.upActuation = actuation / 100;
-                }
-            });
+
+            {
+                await send(
+                    device,
+                    getActiveLayerKeysActuationChunkPayload(chunk, direction),
+                );
+                const payload = await receive(device);
+                new Uint16Array(payload.buffer).forEach((actuation, index) => {
+                    const key = keys[chunk * 32 + index];
+                    if (direction === "press") {
+                        key.downActuation = actuation / 100;
+                    } else {
+                        key.upActuation = actuation / 100;
+                    }
+                });
+            }
+
+            {
+                await send(
+                    device,
+                    getActiveLayerKeysRapidTriggerSensitivityChunkPayload(
+                        chunk,
+                        direction,
+                    ),
+                );
+                const payload = await receive(device);
+                new Uint16Array(payload.buffer).forEach((actuation, index) => {
+                    const key = keys[chunk * 32 + index];
+                    if (direction === "press") {
+                        key.rapidTriggerPressSensitivity = actuation / 100;
+                    } else {
+                        key.rapidTriggerReleaseSensitivity = actuation / 100;
+                    }
+                });
+            }
         }
     }
 
@@ -323,7 +385,7 @@ export async function getKeys(device: HIDDevice): Promise<Key[]> {
 export async function applyKeys(keyboard: Keyboard): Promise<void> {
     // TODO: Track changed keys and only update the modified chunks.
 
-    for (let chunk = 0; chunk < 3; chunk++) {
+    for (let chunk = 0; chunk < 2; chunk++) {
         await send(
             keyboard.device,
             setKeyRapidTriggerChunkPayload(
@@ -337,20 +399,15 @@ export async function applyKeys(keyboard: Keyboard): Promise<void> {
         for (let chunk = 0; chunk < CHUNK_COUNT; chunk++) {
             await send(
                 keyboard.device,
-                setKeyRapidTriggerSensitivityChunkPayload(
+                setKeyActuationChunkPayload(
                     chunk,
                     keyboard.keys.slice(chunk * 28, (chunk + 1) * 28),
                     direction,
                 ),
             );
-        }
-    }
-
-    for (const direction of ["press", "release"] as const) {
-        for (let chunk = 0; chunk < CHUNK_COUNT; chunk++) {
             await send(
                 keyboard.device,
-                setKeyActuationChunkPayload(
+                setKeyRapidTriggerSensitivityChunkPayload(
                     chunk,
                     keyboard.keys.slice(chunk * 28, (chunk + 1) * 28),
                     direction,
