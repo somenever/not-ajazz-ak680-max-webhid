@@ -6,6 +6,9 @@ export const LAYERS = [0, 1, 2, 3] as const;
 export const MIN_ACTUATION = 0.1;
 export const MAX_ACTUATION = 3.2;
 
+export const RT_MIN_SENSITIVITY = 0.01;
+export const RT_MAX_SENSITIVITY = 2;
+
 const CHUNK_COUNT = 4;
 
 export type Keyboard = {
@@ -18,11 +21,22 @@ export type Layer = (typeof LAYERS)[number];
 
 const isLayer = (layer: any): layer is Layer => LAYERS.includes(layer);
 
+function packetHeader(
+    packetType: number,
+    data: [number, number, number, number, number, number] = [0, 0, 0, 0, 0, 0],
+) {
+    return [
+        packetType,
+        ...data,
+        0xff - packetType - data.reduce((a, b) => a + b),
+    ];
+}
+
 export function setLayerPayload(layer: Layer): Uint8Array<ArrayBuffer> {
     const layerMagicByte = [0xfb, 0xfa, 0xf9, 0xf8][layer];
     // prettier-ignore
     return new Uint8Array([
-        0x04, layer, 0x00, 0x00, 0x00, 0x00, 0x00, layerMagicByte, 0x00, 0x00, 0x00, 0x00,
+        ...packetHeader(0x04, [layer, 0, 0, 0, 0, 0]), 0x00, 0x00, 0x00, 0x00,
         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -31,32 +45,32 @@ export function setLayerPayload(layer: Layer): Uint8Array<ArrayBuffer> {
     ]);
 }
 
+// prettier-ignore
 export const getLayerPayload = new Uint8Array([
-    0x84, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x7b, 0x00, 0x00, 0x00, 0x00,
+    ...packetHeader(0x84), 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-    0x00, 0x00, 0x00, 0x00,
 ]);
 
+// prettier-ignore
 export const getFirmwarePayload = new Uint8Array([
-    0x8f, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x70, 0x00, 0x00, 0x00, 0x00,
+    ...packetHeader(0x8f), 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-    0x00, 0x00, 0x00, 0x00,
 ]);
 
 export function getActiveLayerKeysActuationChunkPayload(
     chunk: number,
-    direction: "up" | "down",
+    direction: "press" | "release",
 ): Uint8Array<ArrayBuffer> {
-    const isUp = direction === "up" ? 0x01 : 0x00;
+    const isUp = direction === "release" ? 1 : 0;
     // prettier-ignore
     return new Uint8Array([
-        0xe5, isUp, 0x01, chunk, 0x00, 0x00, 0x00, 0x19 - chunk - isUp, 0x00, 0x00, 0x00, 0x00,
+        ...packetHeader(0xe5, [isUp, 1, chunk, 0, 0, 0]), 0x00, 0x00, 0x00, 0x00,
         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -65,43 +79,65 @@ export function getActiveLayerKeysActuationChunkPayload(
     ]);
 }
 
-export function setKeyActuationPreparePayload(
-    index: number,
+export function setKeyRapidTriggerChunkPayload(
+    keys: Key[],
+    chunk: number,
 ): Uint8Array<ArrayBuffer> {
     // prettier-ignore
+    const keysRapidTrigger = keys.map((key) =>
+        key.rapidTrigger ? 0x80 : 0,
+    );
+    assert(keysRapidTrigger.length <= 56, "a chunk can only have 56 keys");
+    if (keysRapidTrigger.length < 56) {
+        const oldLength = keysRapidTrigger.length;
+        keysRapidTrigger.length = 56;
+        keysRapidTrigger.fill(0, oldLength, -1);
+    }
+    console.log(keysRapidTrigger);
+    // prettier-ignore
     return new Uint8Array([
-        0x65, 0x07, 0x01, index, 0x00, 0x00, 0x00, 0x92 - index, 0x00, 0x00, 0x00, 0x00,
-        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-        0x00, 0x00, 0x00, 0x00,
+        ...packetHeader(0x65, [0x07, 1, chunk, 0, 0, 0]),
+        ...new Uint8Array(keysRapidTrigger)
     ]);
 }
 
-export function setKeyActuationEndForDirectionPayload(
-    direction: "up" | "down",
+export function setKeyRapidTriggerSensitivityChunkPayload(
+    chunk: number,
+    keys: Key[],
+    direction: "press" | "release",
 ): Uint8Array<ArrayBuffer> {
-    const isUp = direction === "up" ? 0x01 : 0x00;
+    const directionByte = direction === "press" ? 0x02 : 0x03;
+    const keysSensitivity = keys.map((key) =>
+        Math.floor(
+            (direction === "press"
+                ? key.rapidTriggerPressSensitivity
+                : key.rapidTriggerReleaseSensitivity) * 100,
+        ),
+    );
+    assert(keysSensitivity.length <= 28, "a chunk can only have 28 keys");
+    if (keysSensitivity.length < 28) {
+        const oldLength = keysSensitivity.length;
+        keysSensitivity.length = 28;
+        keysSensitivity.fill(0, oldLength, -1);
+    }
+    console.log(keysSensitivity);
     // prettier-ignore
     return new Uint8Array([
-        0x65, isUp, 0x01, 4, isUp, 0x00, 0x00, 0x99 - 4 - isUp * 2, 0x00, 0x00, 0x00, 0x00,
-        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-        0x00, 0x00, 0x00, 0x00,
+        ...packetHeader(0x65, [directionByte, 1, chunk, 0, 0, 0]),
+        ...new Uint8Array(new Uint16Array(keysSensitivity).buffer),
     ]);
 }
 
 export function setKeyActuationChunkPayload(
     chunk: number,
     keys: Key[],
-    direction: "up" | "down",
+    direction: "press" | "release",
 ): Uint8Array<ArrayBuffer> {
-    const isUp = direction === "up" ? 0x01 : 0x00;
+    const directionByte = direction === "press" ? 0x00 : 0x01;
     const keysActuation = keys.map((key) =>
-        Math.floor((isUp ? key.upActuation : key.downActuation) * 100),
+        Math.floor(
+            (direction === "press" ? key.downActuation : key.upActuation) * 100,
+        ),
     );
     assert(keysActuation.length <= 28, "a chunk can only have 28 keys");
     if (keysActuation.length < 28) {
@@ -112,7 +148,8 @@ export function setKeyActuationChunkPayload(
     console.log(keysActuation);
     // prettier-ignore
     return new Uint8Array([
-        0x65, isUp, 0x01, chunk, 0x00, 0x00, 0x00, 0x99 - chunk - isUp, ...new Uint8Array(new Uint16Array(keysActuation).buffer),
+        ...packetHeader(0x65, [directionByte, 1, chunk, 0, 0, 0]),
+        ...new Uint8Array(new Uint16Array(keysActuation).buffer),
     ]);
 }
 
@@ -240,6 +277,9 @@ export type Key = {
     code: number;
     downActuation: number;
     upActuation: number;
+    rapidTrigger: boolean;
+    rapidTriggerPressSensitivity: number;
+    rapidTriggerReleaseSensitivity: number;
 };
 
 export async function getKeys(device: HIDDevice): Promise<Key[]> {
@@ -251,10 +291,13 @@ export async function getKeys(device: HIDDevice): Promise<Key[]> {
             code: key,
             downActuation: 0,
             upActuation: 0,
+            rapidTrigger: false,
+            rapidTriggerPressSensitivity: 0.2,
+            rapidTriggerReleaseSensitivity: 0.2,
         };
     }
 
-    for (const direction of ["down", "up"] as const) {
+    for (const direction of ["press", "release"] as const) {
         console.debug(direction);
         for (let chunk = 0; chunk < CHUNK_COUNT; chunk++) {
             console.debug("CHUNK", chunk);
@@ -265,7 +308,7 @@ export async function getKeys(device: HIDDevice): Promise<Key[]> {
             const payload = await receive(device);
             new Uint16Array(payload.buffer).forEach((actuation, index) => {
                 const key = keys[chunk * 32 + index];
-                if (direction === "down") {
+                if (direction === "press") {
                     key.downActuation = actuation / 100;
                 } else {
                     key.upActuation = actuation / 100;
@@ -278,11 +321,32 @@ export async function getKeys(device: HIDDevice): Promise<Key[]> {
 }
 
 export async function applyKeys(keyboard: Keyboard): Promise<void> {
-    await send(keyboard.device, setKeyActuationPreparePayload(0));
-    await send(keyboard.device, setKeyActuationPreparePayload(1));
-    await send(keyboard.device, setKeyActuationPreparePayload(2));
+    // TODO: Track changed keys and only update the modified chunks.
 
-    for (const direction of ["down", "up"] as const) {
+    for (let chunk = 0; chunk < 3; chunk++) {
+        await send(
+            keyboard.device,
+            setKeyRapidTriggerChunkPayload(
+                keyboard.keys.slice(chunk * 56, (chunk + 1) * 56),
+                chunk,
+            ),
+        );
+    }
+
+    for (const direction of ["press", "release"] as const) {
+        for (let chunk = 0; chunk < CHUNK_COUNT; chunk++) {
+            await send(
+                keyboard.device,
+                setKeyRapidTriggerSensitivityChunkPayload(
+                    chunk,
+                    keyboard.keys.slice(chunk * 28, (chunk + 1) * 28),
+                    direction,
+                ),
+            );
+        }
+    }
+
+    for (const direction of ["press", "release"] as const) {
         for (let chunk = 0; chunk < CHUNK_COUNT; chunk++) {
             await send(
                 keyboard.device,
@@ -293,10 +357,6 @@ export async function applyKeys(keyboard: Keyboard): Promise<void> {
                 ),
             );
         }
-        await send(
-            keyboard.device,
-            setKeyActuationEndForDirectionPayload(direction),
-        );
     }
 }
 
