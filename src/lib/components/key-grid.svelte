@@ -1,6 +1,7 @@
 <script lang="ts">
     import { SquareDashedMousePointerIcon } from "@lucide/svelte";
     import { SvelteSet } from "svelte/reactivity";
+    import { tick } from "svelte";
 
     import { KEYMAP, RT_MAX_SENSITIVITY, RT_MIN_SENSITIVITY, type Key } from "$lib/ak680max";
     import keyDefs from "$lib/keys.json";
@@ -30,11 +31,12 @@
         }
     }
 
-    export function selectAll() {
+    export async function selectAll() {
         isAddingSelections = !selectedKeys.has(0);
         for (const key of keys) {
             if (KEYMAP[key.code]) {
                 toggleSelection(key.code);
+                await tick();
             }
         }
     }
@@ -169,9 +171,11 @@
             </div>
         </div>
     {:else}
-        <div class="flex h-full flex-col items-center justify-center gap-2 opacity-50">
+        <div class="flex h-full flex-col items-center justify-center gap-2 text-center opacity-50">
             <SquareDashedMousePointerIcon />
             Select one or more keys to change options
+            <br />
+            Hold to select multiple keys
         </div>
     {/if}
 </div>
@@ -187,7 +191,7 @@
             {@const keyDef = keyDefs[name]}
             <button
                 class={[
-                    "font-keys group relative flex items-center justify-center rounded-md bg-stone-900 p-3 select-none",
+                    "font-keys relative flex items-center justify-center rounded-md bg-stone-900 p-3 select-none",
                     selectedKeys.has(key.code)
                         ? "outline-2 -outline-offset-1 outline-red-600"
                         : "focus-visible:outline-none",
@@ -211,7 +215,7 @@
                 <ActuationInput
                     bind:value={key.upActuation}
                     class={[
-                        "absolute -top-0 left-1/2 z-50 w-6 -translate-x-1/2 text-yellow-100 group-hover:visible",
+                        "absolute -top-0 left-1/2 z-50 w-6 -translate-x-1/2 text-yellow-100",
                         !showAllActuations && "invisible",
                         isDragging && "cursor-grabbing",
                     ]}
@@ -219,7 +223,7 @@
                 <ActuationInput
                     bind:value={key.downActuation}
                     class={[
-                        "absolute -bottom-0 left-1/2 z-50 w-8 -translate-x-1/2 text-blue-200 group-hover:visible",
+                        "absolute -bottom-0 left-1/2 z-50 w-8 -translate-x-1/2 text-blue-200",
                         !showAllActuations && "invisible",
                         isDragging && "cursor-grabbing",
                     ]}
