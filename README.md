@@ -6,6 +6,7 @@ This project is presented as a work of fiction, solely for the purpose of entert
 ## Supported Features
 - Layer switching
 - Viewing and changing actuation points
+- Rapid Trigger settings
 
 ## Tested Models
 - AK680 MAX Black No RGB (Firmware: ID2317_V303)
