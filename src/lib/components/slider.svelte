@@ -28,7 +28,7 @@
     >
         <span class="text-xs font-bold uppercase">{direction}</span>
         {#if value}
-            <ActuationInput class="w-8 text-sm!" bind:value {disabled} />
+            <ActuationInput class="w-8 text-sm!" bind:value {min} {max} {disabled} />
             mm
         {:else}
             ...
