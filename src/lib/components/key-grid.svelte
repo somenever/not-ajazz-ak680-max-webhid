@@ -2,10 +2,12 @@
     import { SquareDashedMousePointerIcon } from "@lucide/svelte";
     import { SvelteSet } from "svelte/reactivity";
 
-    import { KEYMAP, type Key } from "$lib/ak680max";
+    import { KEYMAP, RT_MAX_SENSITIVITY, RT_MIN_SENSITIVITY, type Key } from "$lib/ak680max";
     import keyDefs from "$lib/keys.json";
     import ActuationSlider from "$lib/components/actuation-slider.svelte";
-    import ActuationInput from "./actuation-input.svelte";
+    import ActuationInput from "$lib/components/actuation-input.svelte";
+    import ToggleSwitch from "$lib/components/toggle-switch.svelte";
+    import Slider from "./slider.svelte";
 
     let {
         showAllActuations,
@@ -15,6 +17,7 @@
 
     const unitMultiplier = 4;
 
+    let separateRTPressRelease = $state(false);
     let isDragging = $state(false);
     let isAddingSelections = true;
     let selectedKeys = new SvelteSet<number>();
@@ -45,26 +48,41 @@
     const selectedKeysUpActuation = $derived(
         getCommonValue([...selectedKeys.values().map((key) => keys[key].upActuation)]),
     );
+    const selectedKeysRapidTrigger = $derived(
+        getCommonValue([...selectedKeys.values().map((key) => keys[key].rapidTrigger)]),
+    );
+    const selectedKeysRTPressSensitivity = $derived(
+        getCommonValue([
+            ...selectedKeys.values().map((key) => keys[key].rapidTriggerPressSensitivity),
+        ]),
+    );
+    const selectedKeysRTReleaseSensitivity = $derived(
+        getCommonValue([
+            ...selectedKeys.values().map((key) => keys[key].rapidTriggerReleaseSensitivity),
+        ]),
+    );
 </script>
 
 <svelte:window onmouseup={() => (isDragging = false)} />
 
-<div class="h-30">
+<div class="min-h-30">
     {#if selectedKeys.size !== 0}
         <div class="flex h-full w-full items-center gap-8 px-4">
-            <div
-                class="font-keys grid h-12 min-w-12 place-items-center rounded-md bg-stone-900 px-4"
-            >
-                {#if selectedKeys.size === 1}
-                    {keyDefs[(KEYMAP[selectedKeys.values().next().value!] || null)!].name}
-                {:else if selectedKeys.size === Object.values(keyDefs).length}
-                    All keys
-                {:else}
-                    {selectedKeys.size} keys
-                {/if}
+            <div class="flex min-w-24 justify-center">
+                <div
+                    class="font-keys grid h-12 min-w-12 place-items-center rounded-md bg-stone-900 px-4"
+                >
+                    {#if selectedKeys.size === 1}
+                        {keyDefs[(KEYMAP[selectedKeys.values().next().value!] || null)!].name}
+                    {:else if selectedKeys.size === Object.values(keyDefs).length}
+                        All keys
+                    {:else}
+                        {selectedKeys.size} keys
+                    {/if}
+                </div>
             </div>
 
-            <div class="flex h-full flex-col gap-2">
+            <div class="flex h-full flex-col gap-2 pr-4">
                 <h2 class="text-xs font-bold uppercase">Actuation Point</h2>
 
                 <ActuationSlider
@@ -88,6 +106,66 @@
                     }
                     max={3.2}
                 />
+            </div>
+
+            <div class="flex h-full flex-col gap-2 border-l-2 border-stone-500 px-4">
+                <h2 class="flex gap-4 text-xs font-bold uppercase">
+                    Rapid Trigger
+                    <ToggleSwitch
+                        class="-translate-y-0.5"
+                        indeterminate={selectedKeysRapidTrigger === null}
+                        bind:checked={
+                            () => selectedKeysRapidTrigger!,
+                            (value) => {
+                                if (value !== null) {
+                                    onActuationChange?.();
+                                    selectedKeys.forEach((key) => (keys[key].rapidTrigger = value));
+                                }
+                            }
+                        }
+                    />
+                </h2>
+
+                <h2 class="flex items-center gap-4 text-xs font-bold uppercase">
+                    Separate Press/Release
+                    <ToggleSwitch bind:checked={separateRTPressRelease} />
+                </h2>
+
+                <Slider
+                    bind:value={
+                        () => selectedKeysRTPressSensitivity,
+                        (value) => {
+                            onActuationChange?.();
+                            selectedKeys.forEach((key) => {
+                                keys[key].rapidTriggerPressSensitivity = value!;
+                                if (!separateRTPressRelease)
+                                    keys[key].rapidTriggerReleaseSensitivity = value!;
+                            });
+                        }
+                    }
+                    disabled={!selectedKeysRapidTrigger}
+                    min={RT_MIN_SENSITIVITY}
+                    max={RT_MAX_SENSITIVITY}
+                    direction="press"
+                />
+
+                {#if separateRTPressRelease || selectedKeysRTPressSensitivity !== selectedKeysRTReleaseSensitivity}
+                    <Slider
+                        bind:value={
+                            () => selectedKeysRTReleaseSensitivity,
+                            (value) => {
+                                onActuationChange?.();
+                                selectedKeys.forEach(
+                                    (key) => (keys[key].rapidTriggerReleaseSensitivity = value!),
+                                );
+                            }
+                        }
+                        disabled={!selectedKeysRapidTrigger}
+                        min={RT_MIN_SENSITIVITY}
+                        max={RT_MAX_SENSITIVITY}
+                        direction="release"
+                    />
+                {/if}
             </div>
         </div>
     {:else}
