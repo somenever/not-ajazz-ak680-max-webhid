@@ -32,7 +32,7 @@
     }
 
     export async function selectAll() {
-        isAddingSelections = !selectedKeys.has(0);
+        isAddingSelections = selectedKeys.size === 0;
         for (const key of keys) {
             if (KEYMAP[key.code]) {
                 toggleSelection(key.code);
