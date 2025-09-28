@@ -3,10 +3,12 @@
 
     let {
         class: clazz = "",
+        disabled = false,
         onActuationChange,
         value = $bindable(0),
     }: {
         class?: any[] | string;
+        disabled?: boolean;
         onActuationChange?: () => void;
         value: number;
     } = $props();
@@ -34,5 +36,6 @@
     onchange={validateActuation}
     onmousedown={(e) => e.stopPropagation()}
     onclick={(e) => e.stopPropagation()}
+    {disabled}
     bind:value
 />
