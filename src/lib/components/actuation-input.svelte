@@ -2,7 +2,7 @@
     import { MAX_ACTUATION, MIN_ACTUATION } from "$lib/ak680max";
 
     let {
-        class: className = "",
+        class: clazz = "",
         onActuationChange,
         value = $bindable(0),
     }: {
@@ -24,7 +24,7 @@
 <input
     class={[
         "rounded-xs border-none text-center text-[0.6rem] outline-red-600/70 focus:outline-4 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none",
-        ...(typeof className === "string" ? [className] : className),
+        ...(typeof clazz === "string" ? [clazz] : clazz),
     ]}
     type="number"
     min={MIN_ACTUATION}
