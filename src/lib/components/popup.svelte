@@ -35,8 +35,7 @@
         class="absolute top-1/2 left-1/2 z-20 w-[calc(100%-1.75rem)] -translate-x-1/2
             -translate-y-1/2 overflow-clip rounded-3xl bg-stone-800 shadow-lg shadow-[rgb(0_0_0_/_0.3)] sm:w-fit {clazz}"
         bind:this={popup}
-        in:scale={{ duration: 600, easing: backOut }}
-        out:scale={{ duration: 600, easing: cubicOut }}
+        transition:scale={{ duration: 400, easing: backOut, start: 0.2 }}
         onmousedown={(e) => e.stopPropagation()}
         onclick={(e) => e.stopPropagation()}
         {...props}
