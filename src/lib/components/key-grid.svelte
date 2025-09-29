@@ -4,11 +4,12 @@
     import { tick } from "svelte";
 
     import { KEYMAP, RT_MAX_SENSITIVITY, RT_MIN_SENSITIVITY, type Key } from "$lib/ak680max";
+    import { nullOf } from "$lib";
     import keyDefs from "$lib/keys.json";
     import ActuationSlider from "$lib/components/actuation-slider.svelte";
     import ActuationInput from "$lib/components/actuation-input.svelte";
     import ToggleSwitch from "$lib/components/toggle-switch.svelte";
-    import Slider from "./slider.svelte";
+    import Slider from "$lib/components/slider.svelte";
 
     let {
         showAllActuations,
@@ -16,12 +17,15 @@
         keys = $bindable(),
     }: { showAllActuations?: boolean; onActuationChange?: () => void; keys: Key[] } = $props();
 
-    const unitMultiplier = 4;
+    const UNIT_MULTIPLIER = 4;
+    const DRAG_DELAY_MS = 100;
 
     let separateRTPressRelease = $state(false);
-    let isDragging = $state(false);
+    let dragStartTime = $state(nullOf<number>());
     let isAddingSelections = true;
     let selectedKeys = new SvelteSet<number>();
+
+    const isDragging = () => dragStartTime && Date.now() - dragStartTime > DRAG_DELAY_MS;
 
     function toggleSelection(key: number) {
         if (isAddingSelections) {
@@ -65,7 +69,7 @@
     );
 </script>
 
-<svelte:window onmouseup={() => (isDragging = false)} />
+<svelte:window onmouseup={() => (dragStartTime = null)} />
 
 <div class="min-h-30">
     {#if selectedKeys.size !== 0}
@@ -182,7 +186,7 @@
 
 <div
     class="grid gap-1 active:cursor-grabbing"
-    style:grid-template-columns="repeat({16 * unitMultiplier}, 1fr)"
+    style:grid-template-columns="repeat({16 * UNIT_MULTIPLIER}, 1fr)"
     style:grid-template-rows="repeat(4, 3rem)"
 >
     {#each keys as key}
@@ -195,20 +199,22 @@
                     selectedKeys.has(key.code)
                         ? "outline-2 -outline-offset-1 outline-red-600"
                         : "focus-visible:outline-none",
-                    isDragging ? "cursor-grabbing" : "cursor-grab",
+                    isDragging() ? "cursor-grabbing" : "cursor-grab",
                 ]}
                 onmousedown={() => {
                     // Add selections if an unselected key was clicked, remove if it was a selected one
                     isAddingSelections = !selectedKeys.has(key.code);
-                    isDragging = true;
+                    dragStartTime = Date.now();
                 }}
                 onclick={() => {
                     if (selectedKeys.size === 1) selectedKeys.clear();
                     toggleSelection(key.code);
                 }}
-                onmousemove={() => isDragging && toggleSelection(key.code)}
-                style:grid-column="{keyDef.column * unitMultiplier + 1} / span {keyDef.width *
-                    unitMultiplier}"
+                onmousemove={() => {
+                    isDragging() && toggleSelection(key.code);
+                }}
+                style:grid-column="{keyDef.column * UNIT_MULTIPLIER + 1} / span {keyDef.width *
+                    UNIT_MULTIPLIER}"
                 style:grid-row={keyDef.row + 1}
             >
                 {keyDef.name}
@@ -217,7 +223,7 @@
                     class={[
                         "absolute -top-0 left-1/2 z-50 w-6 -translate-x-1/2 text-yellow-100",
                         !showAllActuations && "invisible",
-                        isDragging && "cursor-grabbing",
+                        isDragging() && "cursor-grabbing",
                     ]}
                 />
                 <ActuationInput
@@ -225,7 +231,7 @@
                     class={[
                         "absolute -bottom-0 left-1/2 z-50 w-8 -translate-x-1/2 text-blue-200",
                         !showAllActuations && "invisible",
-                        isDragging && "cursor-grabbing",
+                        isDragging() && "cursor-grabbing",
                     ]}
                 />
             </button>
