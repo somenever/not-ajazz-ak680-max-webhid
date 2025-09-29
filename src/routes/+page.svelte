@@ -227,13 +227,13 @@
     <Popup
         modal
         close={() => (editLayerNamesPopup = false)}
-        class="flex max-w-140 flex-col gap-3 p-6"
+        class="flex max-w-140 flex-col gap-4 p-6"
     >
         <h2 class="flex flex-col items-center gap-2 text-xl font-bold">
             <PencilLineIcon size={48} />
             Layer names
         </h2>
-        <div class="mb-4 flex flex-col gap-2">
+        <form class="flex flex-col gap-2">
             {#each LAYERS as layer}
                 <Textbox
                     bind:value={
@@ -242,9 +242,10 @@
                     }
                 />
             {/each}
-        </div>
-        <Button onclick={() => (editLayerNamesPopup = false)}>
-            <CheckIcon />OK
-        </Button>
+
+            <Button class="mt-4" onclick={() => (editLayerNamesPopup = false)}>
+                <CheckIcon />OK
+            </Button>
+        </form>
     </Popup>
 {/if}
