@@ -4,6 +4,7 @@
         CheckIcon,
         DotIcon,
         Icon,
+        PencilLineIcon,
         SquareDashedIcon,
         TriangleAlertIcon,
         ZapIcon,
@@ -21,20 +22,37 @@
         setLayerPayload,
         type Keyboard,
     } from "$lib/ak680max";
+    import { storable } from "$lib/storable";
     import Button from "$lib/components/button.svelte";
     import KeyGrid from "$lib/components/key-grid.svelte";
     import Popup from "$lib/components/popup.svelte";
     import githubLogo from "$lib/assets/github.svg";
     import ToggleButton from "$lib/components/toggle-button.svelte";
     import IconButton from "$lib/components/icon-button.svelte";
+    import Textbox from "$lib/components/textbox.svelte";
 
     let showDisclaimer = $state(true);
     let showUnsupportedKeyboard = $state(false);
     let showApplyKeysButton = $state(false);
     let showAllActuations = $state(false);
-    let keyboard = $state(nullOf<Keyboard>());
+
+    let layerNames = storable<string[]>("layerNames", []);
+    let editLayerNamesPopup = $state(false);
 
     let keyGrid: KeyGrid;
+
+    /*
+    const keys: Key[] = [];
+    for (let key = 0; key < 128; key++) {
+        keys[key] = {
+            code: key,
+            downActuation: 0.2,
+            upActuation: 2.8,
+        };
+    }
+    */
+    //let keyboard = $state(<Keyboard | null>{ keys });
+    let keyboard = $state(nullOf<Keyboard>());
     let processingUserLock = $state(false);
 
     $effect(() => {
@@ -106,9 +124,12 @@
                             {#if keyboard!.activeLayer === layer}
                                 <CheckIcon />
                             {/if}
-                            Layer {layer + 1}
+                            {$layerNames[layer] ?? `Layer ${layer + 1}`}
                         </Button>
                     {/each}
+                    <IconButton onclick={() => (editLayerNamesPopup = true)}>
+                        <PencilLineIcon />
+                    </IconButton>
                 </div>
             </div>
 
@@ -198,6 +219,32 @@
         </p>
         <Button onclick={() => (showUnsupportedKeyboard = false)}>
             <ArrowRightIcon />Proceed anyway
+        </Button>
+    </Popup>
+{/if}
+
+{#if editLayerNamesPopup}
+    <Popup
+        modal
+        close={() => (editLayerNamesPopup = false)}
+        class="flex max-w-140 flex-col gap-3 p-6"
+    >
+        <h2 class="flex flex-col items-center gap-2 text-xl font-bold">
+            <PencilLineIcon size={48} />
+            Layer names
+        </h2>
+        <div class="mb-4 flex flex-col gap-2">
+            {#each LAYERS as layer}
+                <Textbox
+                    bind:value={
+                        () => $layerNames[layer] ?? `Layer ${layer + 1}`,
+                        (value) => ($layerNames[layer] = value)
+                    }
+                />
+            {/each}
+        </div>
+        <Button onclick={() => (editLayerNamesPopup = false)}>
+            <CheckIcon />OK
         </Button>
     </Popup>
 {/if}
