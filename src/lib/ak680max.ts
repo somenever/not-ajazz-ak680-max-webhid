@@ -182,6 +182,21 @@ export function setKeyActuationChunkPayload(
     ]);
 }
 
+export function setKeyActuationEndForDirectionPayload(
+    direction: "press" | "release",
+): Uint8Array<ArrayBuffer> {
+    const isUp = direction === "press" ? 0x00 : 0x01;
+    // prettier-ignore
+    return new Uint8Array([
+        ...packetHeader(0x65, [isUp, 0x01, 4, isUp, 0, 0]), 0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00,
+    ]);
+}
+
 export async function send(
     device: HIDDevice,
     payload: Uint8Array<ArrayBuffer>,
@@ -404,6 +419,10 @@ export async function applyKeys(keyboard: Keyboard): Promise<void> {
                     keyboard.keys.slice(chunk * 28, (chunk + 1) * 28),
                     direction,
                 ),
+            );
+            await send(
+                keyboard.device,
+                setKeyActuationEndForDirectionPayload(direction),
             );
             await send(
                 keyboard.device,
