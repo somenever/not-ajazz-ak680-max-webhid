@@ -33,6 +33,7 @@
     import githubLogo from "$lib/assets/github.svg";
 
     let showDisclaimer = $state(true);
+    let showUnsupportedBrowser = $state(false);
     let showUnsupportedKeyboard = $state(false);
     let showApplyKeysButton = $state(false);
     let showAllActuations = $state(false);
@@ -57,6 +58,8 @@
     let processingUserLock = $state(false);
 
     onMount(() => {
+        if (!("hid" in navigator)) return;
+
         const callback = (event: HIDConnectionEvent) => {
             if (isAk680MaxVendorControl(event.device)) {
                 keyboard = null;
@@ -87,6 +90,11 @@
         </p>
         <Button
             onclick={async () => {
+                if (!("hid" in navigator)) {
+                    showUnsupportedBrowser = true;
+                    return;
+                }
+
                 keyboard = await connectKeyboard();
                 if (keyboard.firmwareID !== 2317) {
                     showUnsupportedKeyboard = true;
@@ -186,6 +194,26 @@
         <img src={githubLogo} alt="GitHub logo" class="h-4 w-4" />
     </a>
 </footer>
+
+{#if showUnsupportedBrowser}
+    <Popup
+        modal
+        close={() => (showUnsupportedBrowser = false)}
+        class="flex max-w-140 flex-col gap-3 p-6"
+    >
+        <h2 class="flex flex-col items-center gap-2 text-xl font-bold">
+            <TriangleAlertIcon size={48} />
+            Unsupported Browser
+        </h2>
+        <p class="mb-4">
+            Your browser does not support WebHID, which is required for this utility to function.
+            Please use a web browser that supports the WebHID API, such as Chrome or Edge.
+        </p>
+        <Button onclick={() => (showUnsupportedBrowser = false)}>
+            <CheckIcon />OK
+        </Button>
+    </Popup>
+{/if}
 
 {#if showDisclaimer}
     <Popup modal close={() => (showDisclaimer = false)} class="flex max-w-140 flex-col gap-3 p-6">
