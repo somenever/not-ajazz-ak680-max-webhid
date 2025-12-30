@@ -218,7 +218,12 @@
 {/if}
 
 {#if showDisclaimer}
-    <Popup modal close={() => (showDisclaimer = false)} class="flex max-w-140 flex-col gap-3 p-6">
+    <Popup
+        modal
+        close={() => (showDisclaimer = false)}
+        class="flex max-w-140 flex-col gap-3 p-6"
+        data-nosnippet
+    >
         <h2 class="flex flex-col items-center gap-2 text-xl font-bold">
             <TriangleAlertIcon size={48} />
             Disclaimer
