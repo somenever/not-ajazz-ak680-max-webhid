@@ -32,7 +32,7 @@
     import Textbox from "$lib/components/textbox.svelte";
     import githubLogo from "$lib/assets/github.svg";
 
-    let showDisclaimer = $state(true);
+    let showDisclaimer = $state(false);
     let showUnsupportedBrowser = $state(false);
     let showUnsupportedKeyboard = $state(false);
     let showApplyKeysButton = $state(false);
@@ -58,6 +58,8 @@
     let processingUserLock = $state(false);
 
     onMount(() => {
+        setTimeout(() => (showDisclaimer = true), 100);
+
         if (!("hid" in navigator)) return;
 
         const callback = (event: HIDConnectionEvent) => {
