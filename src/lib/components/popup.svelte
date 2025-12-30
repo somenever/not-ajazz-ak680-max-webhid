@@ -1,5 +1,6 @@
 <script lang="ts">
     import type { Snippet } from "svelte";
+    import type { SvelteHTMLElements } from "svelte/elements";
     import { backOut, cubicOut } from "svelte/easing";
     import { fade, scale } from "svelte/transition";
 
@@ -15,7 +16,7 @@
         close?: () => void;
         modal?: boolean;
         children: Snippet;
-    } = $props();
+    } & SvelteHTMLElements["div"] = $props();
 
     let popup: HTMLDivElement;
 </script>
@@ -38,6 +39,8 @@
         transition:scale={{ duration: 400, easing: backOut, start: 0.2 }}
         onmousedown={(e) => e.stopPropagation()}
         onclick={(e) => e.stopPropagation()}
+        role="dialog"
+        aria-modal={modal}
         {...props}
     >
         {@render children()}
