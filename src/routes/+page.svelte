@@ -31,6 +31,7 @@
     import IconButton from "$lib/components/icon-button.svelte";
     import Textbox from "$lib/components/textbox.svelte";
     import githubLogo from "$lib/assets/github.svg";
+    import Tooltip from "$lib/components/tooltip.svelte";
 
     let showDisclaimer = $state(false);
     let showUnsupportedBrowser = $state(false);
@@ -84,11 +85,11 @@
     <div
         class="flex max-w-140 flex-col gap-4 rounded-2xl bg-stone-800 p-8 shadow-md shadow-black/50"
     >
-        <h1 class="text-2xl font-bold">Welcome to the Not AJAZZ AK680 MAX Web Utility</h1>
+        <h1 class="text-2xl font-bold">Not AJAZZ AK680 MAX Web Utility</h1>
         <p class="mb-2">
-            A browser-based WebHID configurator for the AJAZZ AK680 MAX keyboard. Works on Linux,
-            macOS, and Windows. Configure actuation, rapid trigger, and layers. Connect your
-            totally-not-a-keyboard by pressing the button below.
+            A web-based configuration software for the AJAZZ AK680 MAX keyboard, built with WebHID.
+            Works on Linux, macOS, and Windows. Configure actuation, rapid trigger, and layers.
+            Connect your totally-not-a-keyboard by pressing the button below.
         </p>
         <Button
             onclick={async () => {
@@ -141,9 +142,11 @@
                         {$layerNames[layer] ?? `Layer ${layer + 1}`}
                     </Button>
                 {/each}
-                <IconButton onclick={() => (editLayerNamesPopup = true)}>
-                    <PencilLineIcon />
-                </IconButton>
+                <Tooltip label="Rename layers">
+                    <IconButton onclick={() => (editLayerNamesPopup = true)}>
+                        <PencilLineIcon />
+                    </IconButton>
+                </Tooltip>
             </div>
         </div>
 
@@ -167,12 +170,16 @@
                 >
                     <CheckIcon />Apply
                 </Button>
-                <IconButton onclick={() => keyGrid?.selectAll()}>
-                    <SquareDashedIcon />
-                </IconButton>
-                <ToggleButton bind:active={showAllActuations}>
-                    <Icon iconNode={arrowsUpDownSquare} />
-                </ToggleButton>
+                <Tooltip label="Select all">
+                    <IconButton onclick={() => keyGrid?.selectAll()}>
+                        <SquareDashedIcon />
+                    </IconButton>
+                </Tooltip>
+                <Tooltip label="Show actuation">
+                    <ToggleButton bind:active={showAllActuations}>
+                        <Icon iconNode={arrowsUpDownSquare} />
+                    </ToggleButton>
+                </Tooltip>
             </div>
         </div>
     </div>
