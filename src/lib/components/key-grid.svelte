@@ -221,7 +221,7 @@
                 <ActuationInput
                     bind:value={key.upActuation}
                     class={[
-                        "absolute -top-0 left-1/2 z-50 w-6 -translate-x-1/2 text-yellow-100",
+                        "absolute -top-0 left-1/2 z-10 w-6 -translate-x-1/2 text-yellow-100",
                         !showAllActuations && "invisible",
                         isDragging() && "cursor-grabbing",
                     ]}
@@ -229,7 +229,7 @@
                 <ActuationInput
                     bind:value={key.downActuation}
                     class={[
-                        "absolute -bottom-0 left-1/2 z-50 w-8 -translate-x-1/2 text-blue-200",
+                        "absolute -bottom-0 left-1/2 z-10 w-8 -translate-x-1/2 text-blue-200",
                         !showAllActuations && "invisible",
                         isDragging() && "cursor-grabbing",
                     ]}
