@@ -25,7 +25,7 @@
         type Keyboard,
     } from "$lib/ak680max";
     import Button from "$lib/components/button.svelte";
-    import KeyGrid from "$lib/components/key-grid.svelte";
+    import KeyOptionsTab from "$lib/components/key-options-tab.svelte";
     import Popup from "$lib/components/popup.svelte";
     import ToggleButton from "$lib/components/toggle-button.svelte";
     import IconButton from "$lib/components/icon-button.svelte";
@@ -42,19 +42,8 @@
     let layerNames = storable<string[]>("layerNames", []);
     let editLayerNamesPopup = $state(false);
 
-    let keyGrid: KeyGrid;
+    let keyOptionsTab: KeyOptionsTab;
 
-    /*
-    const keys: Key[] = [];
-    for (let key = 0; key < 128; key++) {
-        keys[key] = {
-            code: key,
-            downActuation: 0.2,
-            upActuation: 2.8,
-        };
-    }
-    */
-    //let keyboard = $state(<Keyboard | null>{ keys });
     let keyboard = $state(nullOf<Keyboard>());
     let processingUserLock = $state(false);
 
@@ -151,8 +140,8 @@
         </div>
 
         <div class="flex flex-col gap-4 rounded-2xl bg-stone-800 p-4 shadow-md shadow-black/50">
-            <KeyGrid
-                bind:this={keyGrid}
+            <KeyOptionsTab
+                bind:this={keyOptionsTab}
                 bind:keys={keyboard.keys}
                 onActuationChange={() => (showApplyKeysButton = true)}
                 {showAllActuations}
@@ -171,7 +160,7 @@
                     <CheckIcon />Apply
                 </Button>
                 <Tooltip label="Select all">
-                    <IconButton onclick={() => keyGrid?.selectAll()}>
+                    <IconButton onclick={() => keyOptionsTab?.selectAll()}>
                         <SquareDashedIcon />
                     </IconButton>
                 </Tooltip>
