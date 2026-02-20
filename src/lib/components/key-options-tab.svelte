@@ -1,5 +1,6 @@
 <script lang="ts">
-    import { SquareDashedMousePointerIcon } from "@lucide/svelte";
+    import { Icon, SquareDashedIcon, SquareDashedMousePointerIcon } from "@lucide/svelte";
+    import { arrowsUpDownSquare } from "@lucide/lab";
     import { SvelteSet } from "svelte/reactivity";
     import { tick } from "svelte";
 
@@ -10,12 +11,12 @@
     import ActuationInput from "$lib/components/actuation-input.svelte";
     import ToggleSwitch from "$lib/components/toggle-switch.svelte";
     import Slider from "$lib/components/slider.svelte";
+    import TabActionRow from "$lib/components/tab-action-row.svelte";
+    import Tooltip from "$lib/components/tooltip.svelte";
+    import IconButton from "$lib/components/icon-button.svelte";
+    import ToggleButton from "$lib/components/toggle-button.svelte";
 
-    let {
-        showAllActuations,
-        onActuationChange,
-        keys = $bindable(),
-    }: { showAllActuations?: boolean; onActuationChange?: () => void; keys: Key[] } = $props();
+    let { onApply, keys = $bindable() }: { onApply: () => Promise<void>; keys: Key[] } = $props();
 
     const UNIT_MULTIPLIER = 4;
     const DRAG_DELAY_MS = 100;
@@ -24,6 +25,9 @@
     let dragStartTime = $state(nullOf<number>());
     let isAddingSelections = true;
     let selectedKeys = new SvelteSet<number>();
+
+    let showAllActuations = $state(false);
+    let hasUnsavedChanges = $state(false);
 
     const isDragging = () => dragStartTime && Date.now() - dragStartTime > DRAG_DELAY_MS;
 
@@ -96,7 +100,7 @@
                         () => selectedKeysDownActuation,
                         (value) => {
                             if (value) {
-                                onActuationChange?.();
+                                hasUnsavedChanges = true;
                                 selectedKeys.forEach((key) => (keys[key].downActuation = value));
                             }
                         }
@@ -105,7 +109,7 @@
                         () => selectedKeysUpActuation,
                         (value) => {
                             if (value) {
-                                onActuationChange?.();
+                                hasUnsavedChanges = true;
                                 selectedKeys.forEach((key) => (keys[key].upActuation = value));
                             }
                         }
@@ -124,7 +128,7 @@
                             () => selectedKeysRapidTrigger!,
                             (value) => {
                                 if (value !== null) {
-                                    onActuationChange?.();
+                                    hasUnsavedChanges = true;
                                     selectedKeys.forEach((key) => (keys[key].rapidTrigger = value));
                                 }
                             }
@@ -141,7 +145,7 @@
                     bind:value={
                         () => selectedKeysRTPressSensitivity,
                         (value) => {
-                            onActuationChange?.();
+                            hasUnsavedChanges = true;
                             selectedKeys.forEach((key) => {
                                 keys[key].rapidTriggerPressSensitivity = value!;
                                 if (!separateRTPressRelease)
@@ -160,7 +164,7 @@
                         bind:value={
                             () => selectedKeysRTReleaseSensitivity,
                             (value) => {
-                                onActuationChange?.();
+                                hasUnsavedChanges = true;
                                 selectedKeys.forEach(
                                     (key) => (keys[key].rapidTriggerReleaseSensitivity = value!),
                                 );
@@ -238,3 +242,16 @@
         {/if}
     {/each}
 </div>
+
+<TabActionRow applyDisabled={!hasUnsavedChanges} {onApply}>
+    <Tooltip label="Select all">
+        <IconButton onclick={selectAll}>
+            <SquareDashedIcon />
+        </IconButton>
+    </Tooltip>
+    <Tooltip label="Show actuation">
+        <ToggleButton bind:active={showAllActuations}>
+            <Icon iconNode={arrowsUpDownSquare} />
+        </ToggleButton>
+    </Tooltip>
+</TabActionRow>

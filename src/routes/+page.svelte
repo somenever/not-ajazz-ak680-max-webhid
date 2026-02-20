@@ -143,33 +143,9 @@
             <KeyOptionsTab
                 bind:this={keyOptionsTab}
                 bind:keys={keyboard.keys}
-                onActuationChange={() => (showApplyKeysButton = true)}
+                onApply={async () => applyKeys(keyboard!)}
                 {showAllActuations}
             />
-            <div class="flex gap-2">
-                <Button
-                    onclick={async () => {
-                        processingUserLock = true;
-                        console.debug(keyboard!.keys);
-                        await applyKeys(keyboard!);
-                        processingUserLock = false;
-                    }}
-                    disabled={processingUserLock || !showApplyKeysButton}
-                    class="flex-1"
-                >
-                    <CheckIcon />Apply
-                </Button>
-                <Tooltip label="Select all">
-                    <IconButton onclick={() => keyOptionsTab?.selectAll()}>
-                        <SquareDashedIcon />
-                    </IconButton>
-                </Tooltip>
-                <Tooltip label="Show actuation">
-                    <ToggleButton bind:active={showAllActuations}>
-                        <Icon iconNode={arrowsUpDownSquare} />
-                    </ToggleButton>
-                </Tooltip>
-            </div>
         </div>
     </div>
 {/if}
