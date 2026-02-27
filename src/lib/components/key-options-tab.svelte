@@ -4,7 +4,13 @@
     import { SvelteSet } from "svelte/reactivity";
     import { tick } from "svelte";
 
-    import { KEYMAP, RT_MAX_SENSITIVITY, RT_MIN_SENSITIVITY, type Key } from "$lib/ak680max";
+    import {
+        applyKeys,
+        KEYMAP,
+        RT_MAX_SENSITIVITY,
+        RT_MIN_SENSITIVITY,
+        type Keyboard,
+    } from "$lib/ak680max";
     import { nullOf } from "$lib";
     import keyDefs from "$lib/keys.json";
     import ActuationSlider from "$lib/components/actuation-slider.svelte";
@@ -16,7 +22,9 @@
     import IconButton from "$lib/components/icon-button.svelte";
     import ToggleButton from "$lib/components/toggle-button.svelte";
 
-    let { onApply, keys = $bindable() }: { onApply: () => Promise<void>; keys: Key[] } = $props();
+    const { keyboard }: { keyboard: Keyboard } = $props();
+
+    const { keys } = $derived(keyboard);
 
     const UNIT_MULTIPLIER = 4;
     const DRAG_DELAY_MS = 100;
@@ -243,7 +251,14 @@
     {/each}
 </div>
 
-<TabActionRow applyDisabled={!hasUnsavedChanges} {onApply}>
+<TabActionRow
+    onApply={async () => {
+        await applyKeys(keyboard);
+        hasUnsavedChanges = false;
+    }}
+    applyDisabled={!hasUnsavedChanges}
+    busy={keyboard.busy}
+>
     <Tooltip label="Select all">
         <IconButton onclick={selectAll}>
             <SquareDashedIcon />

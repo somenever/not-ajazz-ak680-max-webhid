@@ -3,13 +3,10 @@
         ArrowRightIcon,
         CheckIcon,
         DotIcon,
-        Icon,
         PencilLineIcon,
-        SquareDashedIcon,
         TriangleAlertIcon,
         ZapIcon,
     } from "@lucide/svelte";
-    import { arrowsUpDownSquare } from "@lucide/lab";
     import { onMount } from "svelte";
 
     import { nullOf } from "$lib";
@@ -27,25 +24,19 @@
     import Button from "$lib/components/button.svelte";
     import KeyOptionsTab from "$lib/components/key-options-tab.svelte";
     import Popup from "$lib/components/popup.svelte";
-    import ToggleButton from "$lib/components/toggle-button.svelte";
     import IconButton from "$lib/components/icon-button.svelte";
     import Textbox from "$lib/components/textbox.svelte";
-    import githubLogo from "$lib/assets/github.svg";
     import Tooltip from "$lib/components/tooltip.svelte";
+    import githubLogo from "$lib/assets/github.svg";
 
     let showDisclaimer = $state(false);
     let showUnsupportedBrowser = $state(false);
     let showUnsupportedKeyboard = $state(false);
-    let showApplyKeysButton = $state(false);
-    let showAllActuations = $state(false);
 
     let layerNames = storable<string[]>("layerNames", []);
     let editLayerNamesPopup = $state(false);
 
-    let keyOptionsTab: KeyOptionsTab;
-
     let keyboard = $state(nullOf<Keyboard>());
-    let processingUserLock = $state(false);
 
     onMount(() => {
         setTimeout(() => (showDisclaimer = true), 100);
@@ -114,16 +105,14 @@
                 {#each LAYERS as layer}
                     <Button
                         onclick={async () => {
-                            processingUserLock = true;
                             await send(keyboard!.device, setLayerPayload(layer));
                             keyboard!.activeLayer = layer;
 
                             setTimeout(async () => {
                                 keyboard!.keys = await getKeys(keyboard!.device);
-                                processingUserLock = false;
                             }, 500);
                         }}
-                        disabled={processingUserLock}
+                        disabled={keyboard.busy}
                     >
                         {#if keyboard!.activeLayer === layer}
                             <CheckIcon />
@@ -140,12 +129,7 @@
         </div>
 
         <div class="flex flex-col gap-4 rounded-2xl bg-stone-800 p-4 shadow-md shadow-black/50">
-            <KeyOptionsTab
-                bind:this={keyOptionsTab}
-                bind:keys={keyboard.keys}
-                onApply={async () => applyKeys(keyboard!)}
-                {showAllActuations}
-            />
+            <KeyOptionsTab {keyboard} />
         </div>
     </div>
 {/if}

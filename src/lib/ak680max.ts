@@ -16,6 +16,7 @@ export type Keyboard = {
     activeLayer: Layer;
     device: HIDDevice;
     keys: Key[];
+    busy: boolean;
 };
 export type Layer = (typeof LAYERS)[number];
 
@@ -460,6 +461,7 @@ export async function connectKeyboard(): Promise<Keyboard> {
         activeLayer: await getActiveLayer(device),
         keys: await getKeys(device),
         device,
+        busy: false,
     };
 
     return keyboard;

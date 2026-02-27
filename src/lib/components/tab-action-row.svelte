@@ -1,22 +1,29 @@
 <script lang="ts">
-    import { CheckIcon } from "@lucide/svelte";
+    import { CheckIcon, LoaderCircleIcon } from "@lucide/svelte";
     import type { Snippet } from "svelte";
 
     import Button from "$lib/components/button.svelte";
 
     const {
-        applyDisabled,
         onApply,
+        busy,
+        applyDisabled,
         children,
     }: {
+        onApply: () => void;
+        busy: boolean;
         applyDisabled: boolean;
-        onApply: () => Promise<void>;
         children?: Snippet;
     } = $props();
 </script>
 
 <div class="flex gap-2">
-    <Button onclick={() => onApply()} disabled={applyDisabled} class="flex-1">
+    <Button onclick={onApply} disabled={busy || applyDisabled} class="relative flex-1">
+        {#if busy}
+            <div class="absolute left-2 animate-spin">
+                <LoaderCircleIcon />
+            </div>
+        {/if}
         <CheckIcon />Apply
     </Button>
 
