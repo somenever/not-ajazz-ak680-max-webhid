@@ -1,4 +1,4 @@
-import { assert } from "$lib";
+import { assert, delay } from "$lib";
 
 export const FILTER_AK680_MAX = { vendorId: 0x3151, productId: 0x502c };
 export const LAYERS = [0, 1, 2, 3] as const;
@@ -198,7 +198,7 @@ export function setKeyActuationEndForDirectionPayload(
     ]);
 }
 
-export async function send(
+async function send(
     device: HIDDevice,
     payload: Uint8Array<ArrayBuffer>,
 ): Promise<void> {
@@ -210,6 +210,18 @@ async function receive(device: HIDDevice) {
     const payload = await device.receiveFeatureReport(0);
     console.debug("received payload from device!", payload);
     return payload;
+}
+
+async function lockKeyboard<T>(
+    keyboard: Keyboard,
+    task: () => Promise<T>,
+): Promise<T> {
+    try {
+        keyboard.busy = true;
+        return await task();
+    } finally {
+        keyboard.busy = false;
+    }
 }
 
 async function getActiveLayer(device: HIDDevice): Promise<Layer> {
@@ -327,7 +339,7 @@ export type Key = {
     rapidTriggerReleaseSensitivity: number;
 };
 
-export async function getKeys(device: HIDDevice): Promise<Key[]> {
+async function getKeys(device: HIDDevice): Promise<Key[]> {
     console.debug("sending layer keys payload");
 
     const keys: Key[] = [];
@@ -398,53 +410,54 @@ export async function getKeys(device: HIDDevice): Promise<Key[]> {
     return keys;
 }
 
-export async function setLayer(keyboard: Keyboard, layer: Layer) {
-    await send(keyboard.device, setLayerPayload(layer));
-    keyboard.activeLayer = layer;
+export const setLayer = async (keyboard: Keyboard, layer: Layer) =>
+    lockKeyboard(keyboard, async () => {
+        await send(keyboard.device, setLayerPayload(layer));
+        keyboard.activeLayer = layer;
 
-    setTimeout(async () => {
+        await delay(500);
         keyboard.keys = await getKeys(keyboard.device);
-    }, 500);
-}
+    });
 
-export async function applyKeys(keyboard: Keyboard): Promise<void> {
-    // TODO: Track changed keys and only update the modified chunks.
+export const applyKeys = async (keyboard: Keyboard): Promise<void> =>
+    lockKeyboard(keyboard, async () => {
+        // TODO: Track changed keys and only update the modified chunks.
 
-    for (let chunk = 0; chunk < 2; chunk++) {
-        await send(
-            keyboard.device,
-            setKeyRapidTriggerChunkPayload(
-                keyboard.keys.slice(chunk * 56, (chunk + 1) * 56),
-                chunk,
-            ),
-        );
-    }
-
-    for (const direction of ["press", "release"] as const) {
-        for (let chunk = 0; chunk < CHUNK_COUNT; chunk++) {
+        for (let chunk = 0; chunk < 2; chunk++) {
             await send(
                 keyboard.device,
-                setKeyActuationChunkPayload(
+                setKeyRapidTriggerChunkPayload(
+                    keyboard.keys.slice(chunk * 56, (chunk + 1) * 56),
                     chunk,
-                    keyboard.keys.slice(chunk * 28, (chunk + 1) * 28),
-                    direction,
-                ),
-            );
-            await send(
-                keyboard.device,
-                setKeyActuationEndForDirectionPayload(direction),
-            );
-            await send(
-                keyboard.device,
-                setKeyRapidTriggerSensitivityChunkPayload(
-                    chunk,
-                    keyboard.keys.slice(chunk * 28, (chunk + 1) * 28),
-                    direction,
                 ),
             );
         }
-    }
-}
+
+        for (const direction of ["press", "release"] as const) {
+            for (let chunk = 0; chunk < CHUNK_COUNT; chunk++) {
+                await send(
+                    keyboard.device,
+                    setKeyActuationChunkPayload(
+                        chunk,
+                        keyboard.keys.slice(chunk * 28, (chunk + 1) * 28),
+                        direction,
+                    ),
+                );
+                await send(
+                    keyboard.device,
+                    setKeyActuationEndForDirectionPayload(direction),
+                );
+                await send(
+                    keyboard.device,
+                    setKeyRapidTriggerSensitivityChunkPayload(
+                        chunk,
+                        keyboard.keys.slice(chunk * 28, (chunk + 1) * 28),
+                        direction,
+                    ),
+                );
+            }
+        }
+    });
 
 export const isAk680MaxVendorControl = (device: HIDDevice): boolean =>
     device.productId === FILTER_AK680_MAX.productId &&

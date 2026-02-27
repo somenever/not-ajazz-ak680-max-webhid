@@ -12,14 +12,10 @@
     import { nullOf } from "$lib";
     import { storable } from "$lib/storable";
     import {
-        applyKeys,
         connectKeyboard,
-        getKeys,
         isAk680MaxVendorControl,
         LAYERS,
-        send,
         setLayer,
-        setLayerPayload,
         type Keyboard,
     } from "$lib/ak680max";
     import Button from "$lib/components/button.svelte";

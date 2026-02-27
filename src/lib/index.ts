@@ -8,3 +8,6 @@ export function assert(
         throw new Error("Assertion failed" + (message ? `: ${message}` : "!"));
     }
 }
+
+export const delay = async (ms: number) =>
+    new Promise((resolve, _) => setTimeout(resolve, ms));
