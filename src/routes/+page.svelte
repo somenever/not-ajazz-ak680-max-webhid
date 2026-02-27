@@ -18,6 +18,7 @@
         isAk680MaxVendorControl,
         LAYERS,
         send,
+        setLayer,
         setLayerPayload,
         type Keyboard,
     } from "$lib/ak680max";
@@ -103,17 +104,7 @@
             <h2 class="text-lg font-semibold">Layers</h2>
             <div class="flex flex-wrap gap-2">
                 {#each LAYERS as layer}
-                    <Button
-                        onclick={async () => {
-                            await send(keyboard!.device, setLayerPayload(layer));
-                            keyboard!.activeLayer = layer;
-
-                            setTimeout(async () => {
-                                keyboard!.keys = await getKeys(keyboard!.device);
-                            }, 500);
-                        }}
-                        disabled={keyboard.busy}
-                    >
+                    <Button onclick={() => setLayer(keyboard!, layer)} disabled={keyboard.busy}>
                         {#if keyboard!.activeLayer === layer}
                             <CheckIcon />
                         {/if}

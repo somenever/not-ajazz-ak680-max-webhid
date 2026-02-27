@@ -398,6 +398,15 @@ export async function getKeys(device: HIDDevice): Promise<Key[]> {
     return keys;
 }
 
+export async function setLayer(keyboard: Keyboard, layer: Layer) {
+    await send(keyboard.device, setLayerPayload(layer));
+    keyboard.activeLayer = layer;
+
+    setTimeout(async () => {
+        keyboard.keys = await getKeys(keyboard.device);
+    }, 500);
+}
+
 export async function applyKeys(keyboard: Keyboard): Promise<void> {
     // TODO: Track changed keys and only update the modified chunks.
 
