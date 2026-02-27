@@ -2,60 +2,38 @@
     import { Icon, SquareDashedIcon, SquareDashedMousePointerIcon } from "@lucide/svelte";
     import { arrowsUpDownSquare } from "@lucide/lab";
     import { SvelteSet } from "svelte/reactivity";
-    import { tick } from "svelte";
 
     import {
         applyKeys,
         KEYMAP,
         RT_MAX_SENSITIVITY,
         RT_MIN_SENSITIVITY,
+        type Key,
         type Keyboard,
     } from "$lib/ak680max";
-    import { nullOf } from "$lib";
     import keyDefs from "$lib/keys.json";
     import ActuationSlider from "$lib/components/actuation-slider.svelte";
-    import ActuationInput from "$lib/components/actuation-input.svelte";
     import ToggleSwitch from "$lib/components/toggle-switch.svelte";
     import Slider from "$lib/components/slider.svelte";
     import TabActionRow from "$lib/components/tab-action-row.svelte";
     import Tooltip from "$lib/components/tooltip.svelte";
     import IconButton from "$lib/components/icon-button.svelte";
     import ToggleButton from "$lib/components/toggle-button.svelte";
+    import KeyGrid from "$lib/components/key-grid.svelte";
+    import ActuationInput from "./actuation-input.svelte";
 
     const { keyboard }: { keyboard: Keyboard } = $props();
 
     const { keys } = $derived(keyboard);
 
-    const UNIT_MULTIPLIER = 4;
-    const DRAG_DELAY_MS = 100;
+    let keyGrid = $state<KeyGrid>();
 
     let separateRTPressRelease = $state(false);
-    let dragStartTime = $state(nullOf<number>());
-    let isAddingSelections = true;
-    let selectedKeys = new SvelteSet<number>();
 
     let showAllActuations = $state(false);
     let hasUnsavedChanges = $state(false);
 
-    const isDragging = () => dragStartTime && Date.now() - dragStartTime > DRAG_DELAY_MS;
-
-    function toggleSelection(key: number) {
-        if (isAddingSelections) {
-            selectedKeys.add(key);
-        } else {
-            selectedKeys.delete(key);
-        }
-    }
-
-    export async function selectAll() {
-        isAddingSelections = selectedKeys.size === 0;
-        for (const key of keys) {
-            if (KEYMAP[key.code]) {
-                toggleSelection(key.code);
-                await tick();
-            }
-        }
-    }
+    const selectedKeys = new SvelteSet<number>();
 
     const allAreSame = <T,>(arr: T[]) => arr.every((item) => item === arr[0]);
     const getCommonValue = <T,>(arr: T[]): T | null => (allAreSame(arr) ? arr[0] : null);
@@ -80,8 +58,6 @@
         ]),
     );
 </script>
-
-<svelte:window onmouseup={() => (dragStartTime = null)} />
 
 <div class="min-h-30">
     {#if selectedKeys.size !== 0}
@@ -196,60 +172,26 @@
     {/if}
 </div>
 
-<div
-    class="grid gap-1 active:cursor-grabbing"
-    style:grid-template-columns="repeat({16 * UNIT_MULTIPLIER}, 1fr)"
-    style:grid-template-rows="repeat(4, 3rem)"
->
-    {#each keys as key}
-        {@const name = KEYMAP[key.code]}
-        {#if name}
-            {@const keyDef = keyDefs[name]}
-            <button
-                class={[
-                    "font-keys relative flex items-center justify-center rounded-md bg-stone-900 p-3 select-none",
-                    selectedKeys.has(key.code)
-                        ? "outline-2 -outline-offset-1 outline-red-600"
-                        : "focus-visible:outline-none",
-                    isDragging() ? "cursor-grabbing" : "cursor-grab",
-                ]}
-                onmousedown={() => {
-                    // Add selections if an unselected key was clicked, remove if it was a selected one
-                    isAddingSelections = !selectedKeys.has(key.code);
-                    dragStartTime = Date.now();
-                }}
-                onclick={() => {
-                    if (selectedKeys.size === 1) selectedKeys.clear();
-                    toggleSelection(key.code);
-                }}
-                onmousemove={() => {
-                    isDragging() && toggleSelection(key.code);
-                }}
-                style:grid-column="{keyDef.column * UNIT_MULTIPLIER + 1} / span {keyDef.width *
-                    UNIT_MULTIPLIER}"
-                style:grid-row={keyDef.row + 1}
-            >
-                {keyDef.name}
-                <ActuationInput
-                    bind:value={key.upActuation}
-                    class={[
-                        "absolute -top-0 left-1/2 z-10 w-6 -translate-x-1/2 text-yellow-100",
-                        !showAllActuations && "invisible",
-                        isDragging() && "cursor-grabbing",
-                    ]}
-                />
-                <ActuationInput
-                    bind:value={key.downActuation}
-                    class={[
-                        "absolute -bottom-0 left-1/2 z-10 w-8 -translate-x-1/2 text-blue-200",
-                        !showAllActuations && "invisible",
-                        isDragging() && "cursor-grabbing",
-                    ]}
-                />
-            </button>
-        {/if}
-    {/each}
-</div>
+<KeyGrid {keyboard} {selectedKeys} bind:this={keyGrid}>
+    {#snippet keyOverlay(key: Key)}
+        <ActuationInput
+            bind:value={key.upActuation}
+            class={[
+                "absolute -top-0 left-1/2 z-10 w-6 -translate-x-1/2 text-yellow-100",
+                !showAllActuations && "invisible",
+                keyGrid?.isDragging?.() && "cursor-grabbing",
+            ]}
+        />
+        <ActuationInput
+            bind:value={key.downActuation}
+            class={[
+                "absolute -bottom-0 left-1/2 z-10 w-8 -translate-x-1/2 text-blue-200",
+                !showAllActuations && "invisible",
+                keyGrid?.isDragging?.() && "cursor-grabbing",
+            ]}
+        />
+    {/snippet}
+</KeyGrid>
 
 <TabActionRow
     onApply={async () => {
@@ -260,7 +202,7 @@
     busy={keyboard.busy}
 >
     <Tooltip label="Select all">
-        <IconButton onclick={selectAll}>
+        <IconButton onclick={() => keyGrid!.selectAll()}>
             <SquareDashedIcon />
         </IconButton>
     </Tooltip>
