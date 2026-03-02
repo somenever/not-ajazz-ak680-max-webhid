@@ -14,7 +14,7 @@
     let slider: HTMLDivElement;
     let dragging = $state<"top" | "bottom" | null>(null);
 
-    const range = max - min;
+    const range = $derived(max - min);
 
     const clampActuationValue = (value: number) =>
         Math.round(Math.min(Math.max(value, minCap), max) * 100) / 100;
