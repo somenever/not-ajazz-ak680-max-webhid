@@ -48,7 +48,7 @@
 <svelte:window onmouseup={() => (dragStartTime = null)} />
 
 <div
-    class="grid gap-1 active:cursor-grabbing"
+    class={["grid gap-1", selectedKeys && "active:cursor-grabbing"]}
     style:grid-template-columns="repeat({16 * UNIT_MULTIPLIER}, 1fr)"
     style:grid-template-rows="repeat(4, 3rem)"
 >

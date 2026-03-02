@@ -1,7 +1,8 @@
 <script lang="ts">
-    import { Icon, SquareDashedIcon, SquareDashedMousePointerIcon } from "@lucide/svelte";
-    import { arrowsUpDownSquare } from "@lucide/lab";
     import { SvelteSet } from "svelte/reactivity";
+    import IconArrowsUpDownSquare from "~icons/lucide-lab/arrows-up-down-square";
+    import IconSquareDashed from "~icons/lucide/square-dashed";
+    import IconSquareDashedMousePointer from "~icons/lucide/square-dashed-mouse-pointer";
 
     import {
         applyKeys,
@@ -164,7 +165,7 @@
         </div>
     {:else}
         <div class="flex h-full flex-col items-center justify-center gap-2 text-center opacity-50">
-            <SquareDashedMousePointerIcon />
+            <IconSquareDashedMousePointer />
             Select one or more keys to change options
             <br />
             Hold to select multiple keys
@@ -203,12 +204,12 @@
 >
     <Tooltip label="Select all">
         <IconButton onclick={() => keyGrid!.selectAll()}>
-            <SquareDashedIcon />
+            <IconSquareDashed />
         </IconButton>
     </Tooltip>
     <Tooltip label="Show actuation">
         <ToggleButton bind:active={showAllActuations}>
-            <Icon iconNode={arrowsUpDownSquare} />
+            <IconArrowsUpDownSquare />
         </ToggleButton>
     </Tooltip>
 </TabActionRow>

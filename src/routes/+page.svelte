@@ -1,13 +1,11 @@
 <script lang="ts">
-    import {
-        ArrowRightIcon,
-        CheckIcon,
-        DotIcon,
-        PencilLineIcon,
-        TriangleAlertIcon,
-        ZapIcon,
-    } from "@lucide/svelte";
     import { onMount } from "svelte";
+    import IconArrowRight from "~icons/lucide/arrow-right";
+    import IconCheck from "~icons/lucide/check";
+    import IconDot from "~icons/lucide/dot";
+    import IconPencilLine from "~icons/lucide/pencil-line";
+    import IconTriangleAlert from "~icons/lucide/triangle-alert";
+    import IconZap from "~icons/lucide/zap";
 
     import { nullOf } from "$lib";
     import { storable } from "$lib/storable";
@@ -81,7 +79,7 @@
                 }
             }}
         >
-            <ZapIcon />Connect
+            <IconZap />Connect
         </Button>
     </div>
 {:else}
@@ -102,14 +100,14 @@
                 {#each LAYERS as layer}
                     <Button onclick={() => setLayer(keyboard!, layer)} disabled={keyboard.busy}>
                         {#if keyboard!.activeLayer === layer}
-                            <CheckIcon />
+                            <IconCheck />
                         {/if}
                         {$layerNames[layer] ?? `Layer ${layer + 1}`}
                     </Button>
                 {/each}
                 <Tooltip label="Rename layers">
                     <IconButton onclick={() => (editLayerNamesPopup = true)}>
-                        <PencilLineIcon />
+                        <IconPencilLine />
                     </IconButton>
                 </Tooltip>
             </div>
@@ -128,9 +126,9 @@
         made with <span class="text-red-600">❤️</span>
         by someever
     </span>
-    <DotIcon class="opacity-50" />
+    <IconDot class="opacity-50" />
     <span class="text-sm opacity-50">not affiliated with or endorsed by ajazz</span>
-    <DotIcon class="opacity-50" />
+    <IconDot class="opacity-50" />
     <a
         href="https://github.com/somenever/not-ajazz-ak680-max-webhid"
         target="_blank"
@@ -147,7 +145,7 @@
         class="flex max-w-140 flex-col gap-3 p-6"
     >
         <h2 class="flex flex-col items-center gap-2 text-xl font-bold">
-            <TriangleAlertIcon size={48} />
+            <IconTriangleAlert class="size-12" />
             Unsupported Browser
         </h2>
         <p class="mb-4">
@@ -155,7 +153,7 @@
             Please use a web browser that supports the WebHID API, such as Chrome or Edge.
         </p>
         <Button onclick={() => (showUnsupportedBrowser = false)}>
-            <CheckIcon />OK
+            <IconCheck />OK
         </Button>
     </Popup>
 {/if}
@@ -168,7 +166,7 @@
         data-nosnippet
     >
         <h2 class="flex flex-col items-center gap-2 text-xl font-bold">
-            <TriangleAlertIcon size={48} />
+            <IconTriangleAlert class="size-12" />
             Disclaimer
         </h2>
         <p class="mb-4">
@@ -179,7 +177,7 @@
             probably won’t damage your keyboard, but the warning still stands.)
         </p>
         <Button onclick={() => (showDisclaimer = false)}>
-            <CheckIcon />I understand
+            <IconCheck />I understand
         </Button>
     </Popup>
 {/if}
@@ -191,7 +189,7 @@
         class="flex max-w-140 flex-col gap-3 p-6"
     >
         <h2 class="flex flex-col items-center gap-2 text-xl font-bold">
-            <TriangleAlertIcon size={48} />
+            <IconTriangleAlert class="size-12" />
             Unsupported Keyboard
         </h2>
         <p class="mb-4">
@@ -200,7 +198,7 @@
             as intended.
         </p>
         <Button onclick={() => (showUnsupportedKeyboard = false)}>
-            <ArrowRightIcon />Proceed anyway
+            <IconArrowRight />Proceed anyway
         </Button>
     </Popup>
 {/if}
@@ -212,7 +210,7 @@
         class="flex max-w-140 flex-col gap-4 p-6"
     >
         <h2 class="flex flex-col items-center gap-2 text-xl font-bold">
-            <PencilLineIcon size={48} />
+            <IconPencilLine class="size-12" />
             Layer names
         </h2>
         <form class="flex flex-col gap-2">
@@ -226,7 +224,7 @@
             {/each}
 
             <Button class="mt-4" onclick={() => (editLayerNamesPopup = false)}>
-                <CheckIcon />OK
+                <IconCheck />OK
             </Button>
         </form>
     </Popup>

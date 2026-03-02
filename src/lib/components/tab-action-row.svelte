@@ -1,6 +1,7 @@
 <script lang="ts">
-    import { CheckIcon, LoaderCircleIcon } from "@lucide/svelte";
     import type { Snippet } from "svelte";
+    import IconCheck from "~icons/lucide/check";
+    import IconLoaderCircle from "~icons/lucide/loader-circle";
 
     import Button from "$lib/components/button.svelte";
 
@@ -21,10 +22,10 @@
     <Button onclick={onApply} disabled={busy || applyDisabled} class="relative flex-1">
         {#if busy}
             <div class="absolute left-2 animate-spin">
-                <LoaderCircleIcon />
+                <IconLoaderCircle />
             </div>
         {/if}
-        <CheckIcon />Apply
+        <IconCheck />Apply
     </Button>
 
     {@render children?.()}
