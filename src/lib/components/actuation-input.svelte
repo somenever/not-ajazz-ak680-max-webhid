@@ -1,11 +1,9 @@
 <script lang="ts">
-    import { MAX_ACTUATION, MIN_ACTUATION } from "$lib/ak680max";
-
     let {
         class: clazz = "",
         disabled = false,
-        min = MIN_ACTUATION,
-        max = MAX_ACTUATION,
+        min,
+        max,
         onActuationChange,
         value = $bindable(0),
     }: {

@@ -1,407 +1,407 @@
 {
-    "esc": {
+    "Escape": {
         "name": "Esc",
         "width": 1,
         "column": 0,
         "row": 0
     },
-    "one": {
+    "Digit1": {
         "name": "1 !",
         "width": 1,
         "column": 1,
         "row": 0
     },
-    "two": {
+    "Digit2": {
         "name": "2 @",
         "width": 1,
         "column": 2,
         "row": 0
     },
-    "three": {
+    "Digit3": {
         "name": "3 #",
         "width": 1,
         "column": 3,
         "row": 0
     },
-    "four": {
+    "Digit4": {
         "name": "4 $",
         "width": 1,
         "column": 4,
         "row": 0
     },
-    "five": {
+    "Digit5": {
         "name": "5 %",
         "width": 1,
         "column": 5,
         "row": 0
     },
-    "six": {
+    "Digit6": {
         "name": "6 ^",
         "width": 1,
         "column": 6,
         "row": 0
     },
-    "seven": {
+    "Digit7": {
         "name": "7 &",
         "width": 1,
         "column": 7,
         "row": 0
     },
-    "eight": {
+    "Digit8": {
         "name": "8 *",
         "width": 1,
         "column": 8,
         "row": 0
     },
-    "nine": {
+    "Digit9": {
         "name": "9 (",
         "width": 1,
         "column": 9,
         "row": 0
     },
-    "zero": {
+    "Digit0": {
         "name": "0 )",
         "width": 1,
         "column": 10,
         "row": 0
     },
-    "minus": {
+    "Minus": {
         "name": "- _",
         "width": 1,
         "column": 11,
         "row": 0
     },
-    "equal": {
+    "Equal": {
         "name": "= +",
         "width": 1,
         "column": 12,
         "row": 0
     },
-    "backspace": {
+    "Backspace": {
         "name": "⟵",
         "width": 2,
         "column": 13,
         "row": 0
     },
-    "home": {
+    "Home": {
         "name": "Home",
         "width": 1,
         "column": 15,
         "row": 0
     },
-    "tab": {
+    "Tab": {
         "name": "Tab",
         "width": 1.5,
         "column": 0,
         "row": 1
     },
-    "q": {
+    "KeyQ": {
         "name": "Q",
         "width": 1,
         "column": 1.5,
         "row": 1
     },
-    "w": {
+    "KeyW": {
         "name": "W",
         "width": 1,
         "column": 2.5,
         "row": 1
     },
-    "e": {
+    "KeyE": {
         "name": "E",
         "width": 1,
         "column": 3.5,
         "row": 1
     },
-    "r": {
+    "KeyR": {
         "name": "R",
         "width": 1,
         "column": 4.5,
         "row": 1
     },
-    "t": {
+    "KeyT": {
         "name": "T",
         "width": 1,
         "column": 5.5,
         "row": 1
     },
-    "y": {
+    "KeyY": {
         "name": "Y",
         "width": 1,
         "column": 6.5,
         "row": 1
     },
-    "u": {
+    "KeyU": {
         "name": "U",
         "width": 1,
         "column": 7.5,
         "row": 1
     },
-    "i": {
+    "KeyI": {
         "name": "I",
         "width": 1,
         "column": 8.5,
         "row": 1
     },
-    "o": {
+    "KeyO": {
         "name": "O",
         "width": 1,
         "column": 9.5,
         "row": 1
     },
-    "p": {
+    "KeyP": {
         "name": "P",
         "width": 1,
         "column": 10.5,
         "row": 1
     },
-    "leftbracket": {
+    "BracketLeft": {
         "name": "[",
         "width": 1,
         "column": 11.5,
         "row": 1
     },
-    "rightbracket": {
+    "BracketRight": {
         "name": "]",
         "width": 1,
         "column": 12.5,
         "row": 1
     },
-    "backslash": {
+    "Backslash": {
         "name": "\\",
         "width": 1.5,
         "column": 13.5,
         "row": 1
     },
-    "del": {
+    "Delete": {
         "name": "Del",
         "width": 1,
         "column": 15,
         "row": 1
     },
-    "capslock": {
+    "CapsLock": {
         "name": "Caps",
         "width": 1.75,
         "column": 0,
         "row": 2
     },
-    "a": {
+    "KeyA": {
         "name": "A",
         "width": 1,
         "column": 1.75,
         "row": 2
     },
-    "s": {
+    "KeyS": {
         "name": "S",
         "width": 1,
         "column": 2.75,
         "row": 2
     },
-    "d": {
+    "KeyD": {
         "name": "D",
         "width": 1,
         "column": 3.75,
         "row": 2
     },
-    "f": {
+    "KeyF": {
         "name": "F",
         "width": 1,
         "column": 4.75,
         "row": 2
     },
-    "g": {
+    "KeyG": {
         "name": "G",
         "width": 1,
         "column": 5.75,
         "row": 2
     },
-    "h": {
+    "KeyH": {
         "name": "H",
         "width": 1,
         "column": 6.75,
         "row": 2
     },
-    "j": {
+    "KeyJ": {
         "name": "J",
         "width": 1,
         "column": 7.75,
         "row": 2
     },
-    "k": {
+    "KeyK": {
         "name": "K",
         "width": 1,
         "column": 8.75,
         "row": 2
     },
-    "l": {
+    "KeyL": {
         "name": "L",
         "width": 1,
         "column": 9.75,
         "row": 2
     },
-    "semicolon": {
+    "Semicolon": {
         "name": ";",
         "width": 1,
         "column": 10.75,
         "row": 2
     },
-    "apostrophe": {
+    "Quote": {
         "name": "'",
         "width": 1,
         "column": 11.75,
         "row": 2
     },
-    "enter": {
+    "Enter": {
         "name": "Enter",
         "width": 2.25,
         "column": 12.75,
         "row": 2
     },
-    "pgup": {
+    "PageUp": {
         "name": "PgUp",
         "width": 1,
         "column": 15,
         "row": 2
     },
-    "shift": {
+    "ShiftLeft": {
         "name": "Shift",
         "width": 2.25,
         "column": 0,
         "row": 3
     },
-    "z": {
+    "KeyZ": {
         "name": "Z",
         "width": 1,
         "column": 2.25,
         "row": 3
     },
-    "x": {
+    "KeyX": {
         "name": "X",
         "width": 1,
         "column": 3.25,
         "row": 3
     },
-    "c": {
+    "KeyC": {
         "name": "C",
         "width": 1,
         "column": 4.25,
         "row": 3
     },
-    "v": {
+    "KeyV": {
         "name": "V",
         "width": 1,
         "column": 5.25,
         "row": 3
     },
-    "b": {
+    "KeyB": {
         "name": "B",
         "width": 1,
         "column": 6.25,
         "row": 3
     },
-    "n": {
+    "KeyN": {
         "name": "N",
         "width": 1,
         "column": 7.25,
         "row": 3
     },
-    "m": {
+    "KeyM": {
         "name": "M",
         "width": 1,
         "column": 8.25,
         "row": 3
     },
-    "comma": {
+    "Comma": {
         "name": ", <",
         "width": 1,
         "column": 9.25,
         "row": 3
     },
-    "dot": {
+    "Period": {
         "name": ". >",
         "width": 1,
         "column": 10.25,
         "row": 3
     },
-    "slash": {
+    "Slash": {
         "name": "/ ?",
         "width": 1,
         "column": 11.25,
         "row": 3
     },
-    "rshift": {
+    "ShiftRight": {
         "name": "Shift",
         "width": 1.75,
         "column": 12.25,
         "row": 3
     },
-    "up": {
+    "ArrowUp": {
         "name": "↑",
         "width": 1,
         "column": 14,
         "row": 3
     },
-    "pgdown": {
+    "PageDown": {
         "name": "PgDn",
         "width": 1,
         "column": 15,
         "row": 3
     },
-    "ctrl": {
+    "ContrlLeft": {
         "name": "Ctrl",
         "width": 1.25,
         "column": 0,
         "row": 4
     },
-    "win": {
+    "MetaLeft": {
         "name": "Win",
         "width": 1.25,
         "column": 1.25,
         "row": 4
     },
-    "alt": {
+    "AltLeft": {
         "name": "Alt",
         "width": 1.25,
         "column": 2.5,
         "row": 4
     },
-    "spacebar": {
+    "Space": {
         "name": "⎯⎯⎯⎯⎯⎯",
         "width": 6.25,
         "column": 3.75,
         "row": 4
     },
-    "ralt": {
+    "AltRight": {
         "name": "Alt",
         "width": 1,
         "column": 10,
         "row": 4
     },
-    "fn": {
+    "#Fn": {
         "name": "Fn",
         "width": 1,
         "column": 11,
         "row": 4
     },
-    "rctrl": {
+    "ControlRight": {
         "name": "Ctrl",
         "width": 1,
         "column": 12,
         "row": 4
     },
-    "left": {
+    "ArrowLeft": {
         "name": "←",
         "width": 1,
         "column": 13,
         "row": 4
     },
-    "down": {
+    "ArrowDown": {
         "name": "↓",
         "width": 1,
         "column": 14,
         "row": 4
     },
-    "right": {
+    "ArrowRight": {
         "name": "→",
         "width": 1,
         "column": 15,

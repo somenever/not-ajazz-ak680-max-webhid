@@ -4,15 +4,8 @@
     import IconSquareDashed from "~icons/lucide/square-dashed";
     import IconSquareDashedMousePointer from "~icons/lucide/square-dashed-mouse-pointer";
 
-    import {
-        applyKeys,
-        KEYMAP,
-        RT_MAX_SENSITIVITY,
-        RT_MIN_SENSITIVITY,
-        type Key,
-        type Keyboard,
-    } from "$lib/ak680max";
-    import keyDefs from "$lib/keys.json";
+    import { applyKeys, type Key, type Keyboard } from "$lib/keyboard";
+    import layout from "$lib/layouts/ak680.json";
     import ActuationSlider from "$lib/components/actuation-slider.svelte";
     import ToggleSwitch from "$lib/components/toggle-switch.svelte";
     import Slider from "$lib/components/slider.svelte";
@@ -58,6 +51,8 @@
             ...selectedKeys.values().map((key) => keys[key].rapidTriggerReleaseSensitivity),
         ]),
     );
+
+    const keyList = $derived(keyboard.config.keyList);
 </script>
 
 <div class="min-h-30">
@@ -68,8 +63,9 @@
                     class="font-keys grid h-12 min-w-12 place-items-center rounded-md bg-stone-900 px-4"
                 >
                     {#if selectedKeys.size === 1}
-                        {keyDefs[(KEYMAP[selectedKeys.values().next().value!] || null)!].name}
-                    {:else if selectedKeys.size === Object.values(keyDefs).length}
+                        {layout[keyList[selectedKeys.values().next().value!] as keyof typeof layout]
+                            .name}
+                    {:else if selectedKeys.size === Object.values(layout).length}
                         All keys
                     {:else}
                         {selectedKeys.size} keys
@@ -81,6 +77,8 @@
                 <h2 class="text-xs font-bold uppercase">Actuation Point</h2>
 
                 <ActuationSlider
+                    minCap={keyboard.config.minActuation}
+                    max={keyboard.config.maxActuation}
                     bind:topValue={
                         () => selectedKeysDownActuation,
                         (value) => {
@@ -99,7 +97,6 @@
                             }
                         }
                     }
-                    max={3.2}
                 />
             </div>
 
@@ -139,8 +136,8 @@
                         }
                     }
                     disabled={!selectedKeysRapidTrigger}
-                    min={RT_MIN_SENSITIVITY}
-                    max={RT_MAX_SENSITIVITY}
+                    min={keyboard.config.rtMinSensitivity}
+                    max={keyboard.config.rtMaxSensitivity}
                     direction="press"
                 />
 
@@ -156,8 +153,8 @@
                             }
                         }
                         disabled={!selectedKeysRapidTrigger}
-                        min={RT_MIN_SENSITIVITY}
-                        max={RT_MAX_SENSITIVITY}
+                        min={keyboard.config.rtMinSensitivity}
+                        max={keyboard.config.rtMaxSensitivity}
                         direction="release"
                     />
                 {/if}
@@ -177,6 +174,8 @@
     {#snippet keyOverlay(key: Key)}
         <ActuationInput
             bind:value={key.upActuation}
+            min={keyboard.config.minActuation}
+            max={keyboard.config.maxActuation}
             class={[
                 "absolute -top-0 left-1/2 z-10 w-6 -translate-x-1/2 text-yellow-100",
                 !showAllActuations && "invisible",
@@ -185,6 +184,8 @@
         />
         <ActuationInput
             bind:value={key.downActuation}
+            min={keyboard.config.minActuation}
+            max={keyboard.config.maxActuation}
             class={[
                 "absolute -bottom-0 left-1/2 z-10 w-8 -translate-x-1/2 text-blue-200",
                 !showAllActuations && "invisible",
@@ -196,7 +197,7 @@
 
 <TabActionRow
     onApply={async () => {
-        await applyKeys(keyboard);
+        await applyKeys(keyboard, keyboard.keys);
         hasUnsavedChanges = false;
     }}
     applyDisabled={!hasUnsavedChanges}

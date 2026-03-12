@@ -3,8 +3,8 @@
     import { tick, type Snippet } from "svelte";
 
     import { nullOf } from "$lib";
-    import { KEYMAP, type Key, type Keyboard } from "$lib/ak680max";
-    import keyDefs from "$lib/keys.json";
+    import { type Key, type Keyboard } from "$lib/keyboard";
+    import layout from "$lib/layouts/ak680.json";
 
     const {
         keyboard,
@@ -37,7 +37,7 @@
 
         isAddingSelections = selectedKeys.size === 0;
         for (const key of keyboard.keys) {
-            if (KEYMAP[key.code]) {
+            if (keyboard.config.keyList[key.code]) {
                 toggleSelection(key.code);
                 await tick();
             }
@@ -52,41 +52,38 @@
     style:grid-template-columns="repeat({16 * UNIT_MULTIPLIER}, 1fr)"
     style:grid-template-rows="repeat(4, 3rem)"
 >
-    {#each keyboard.keys as key}
-        {@const name = KEYMAP[key.code]}
-        {#if name}
-            {@const keyDef = keyDefs[name]}
-            <button
-                class={[
-                    "font-keys relative flex items-center justify-center rounded-md bg-stone-900 p-3 select-none",
-                    selectedKeys?.has(key.code)
-                        ? "outline-2 -outline-offset-1 outline-red-600"
-                        : "focus-visible:outline-none",
-                    selectedKeys && (isDragging() ? "cursor-grabbing" : "cursor-grab"),
-                ]}
-                onmousedown={() => {
-                    if (!selectedKeys) return;
+    {#each keyboard.keys as key, i}
+        {@const keyDef = layout[keyboard.config.keyList[i] as keyof typeof layout]}
+        <button
+            class={[
+                "font-keys relative flex items-center justify-center rounded-md bg-stone-900 p-3 select-none",
+                selectedKeys?.has(i)
+                    ? "outline-2 -outline-offset-1 outline-red-600"
+                    : "focus-visible:outline-none",
+                selectedKeys && (isDragging() ? "cursor-grabbing" : "cursor-grab"),
+            ]}
+            onmousedown={() => {
+                if (!selectedKeys) return;
 
-                    // Add selections if an unselected key was clicked, remove if it was a selected one
-                    isAddingSelections = !selectedKeys.has(key.code);
-                    dragStartTime = Date.now();
-                }}
-                onclick={() => {
-                    if (!selectedKeys) return;
+                // Add selections if an unselected key was clicked, remove if it was a selected one
+                isAddingSelections = !selectedKeys.has(key.code);
+                dragStartTime = Date.now();
+            }}
+            onclick={() => {
+                if (!selectedKeys) return;
 
-                    if (selectedKeys.size === 1) selectedKeys.clear();
-                    toggleSelection(key.code);
-                }}
-                onmousemove={() => {
-                    isDragging() && toggleSelection(key.code);
-                }}
-                style:grid-column="{keyDef.column * UNIT_MULTIPLIER + 1} / span {keyDef.width *
-                    UNIT_MULTIPLIER}"
-                style:grid-row={keyDef.row + 1}
-            >
-                {keyDef.name}
-                {@render keyOverlay?.(key)}
-            </button>
-        {/if}
+                if (selectedKeys.size === 1) selectedKeys.clear();
+                toggleSelection(key.code);
+            }}
+            onmousemove={() => {
+                isDragging() && toggleSelection(key.code);
+            }}
+            style:grid-column="{keyDef.column * UNIT_MULTIPLIER + 1} / span {keyDef.width *
+                UNIT_MULTIPLIER}"
+            style:grid-row={keyDef.row + 1}
+        >
+            {keyDef.name}
+            {@render keyOverlay?.(key)}
+        </button>
     {/each}
 </div>

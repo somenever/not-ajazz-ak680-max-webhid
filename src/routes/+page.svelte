@@ -11,11 +11,11 @@
     import { storable } from "$lib/storable";
     import {
         connectKeyboard,
-        isAk680MaxVendorControl,
+        findKeyboardConfigForDevice,
         LAYERS,
         setLayer,
         type Keyboard,
-    } from "$lib/ak680max";
+    } from "$lib/keyboard";
     import Button from "$lib/components/button.svelte";
     import KeyOptionsTab from "$lib/components/key-options-tab.svelte";
     import Popup from "$lib/components/popup.svelte";
@@ -39,7 +39,7 @@
         if (!("hid" in navigator)) return;
 
         const callback = (event: HIDConnectionEvent) => {
-            if (isAk680MaxVendorControl(event.device)) {
+            if (findKeyboardConfigForDevice(event.device)) {
                 keyboard = null;
             }
         };

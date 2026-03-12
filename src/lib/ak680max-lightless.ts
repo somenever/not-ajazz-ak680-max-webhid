@@ -1,27 +1,73 @@
-import { assert, delay } from "$lib";
-
-export const FILTER_AK680_MAX = { vendorId: 0x3151, productId: 0x502c };
-export const LAYERS = [0, 1, 2, 3] as const;
-
-export const MIN_ACTUATION = 0.1;
-export const MAX_ACTUATION = 3.2;
-
-export const RT_MIN_SENSITIVITY = 0.01;
-export const RT_MAX_SENSITIVITY = 2;
+import { assert } from "$lib";
+import {
+    isLayer,
+    type Key,
+    type KeyboardConfig,
+    type Layer,
+} from "$lib/keyboard";
+import { AK680_MAX_LIGHTLESS_KEY_LIST } from "./key-lists/ak680max-lightless";
 
 const REPORT_SIZE = 64;
 const CHUNK_COUNT = 4;
 
-export type Keyboard = {
-    firmwareID: number;
-    activeLayer: Layer;
-    device: HIDDevice;
-    keys: Key[];
-    busy: boolean;
-};
-export type Layer = (typeof LAYERS)[number];
+export const AK680_MAX_LIGHTLESS: KeyboardConfig = {
+    vendorId: 0x3151,
+    productId: 0x502c,
+    usagePage: 0xffff,
+    name: "AK680 MAX",
+    defaultActuation: 0, // ?
+    minActuation: 0.1,
+    maxActuation: 3.2,
+    rtMinSensitivity: 0.01,
+    rtMaxSensitivity: 2,
+    features: ["calibration", "socd", "dks", "mt", "rs", "tgl"],
+    pollingRates: [1000],
+    keyList: AK680_MAX_LIGHTLESS_KEY_LIST,
+    driver: {
+        getLayer: async (device: HIDDevice) => getActiveLayer(device),
+        setLayer: async (device: HIDDevice, layer: Layer) =>
+            send(device, setLayerPayload(layer)),
+        getFirmwareID: async (device: HIDDevice) => getFirmwareID(device),
+        getKeys: async (device: HIDDevice) => getKeys(device),
+        // TODO: This should take a diff of keys or something
+        applyKeys: async (device: HIDDevice, keys: Key[]) => {
+            for (let chunk = 0; chunk < 2; chunk++) {
+                await send(
+                    device,
+                    setKeyRapidTriggerChunkPayload(
+                        keys.slice(chunk * 56, (chunk + 1) * 56),
+                        chunk,
+                    ),
+                );
+            }
 
-const isLayer = (layer: any): layer is Layer => LAYERS.includes(layer);
+            for (const direction of ["press", "release"] as const) {
+                for (let chunk = 0; chunk < CHUNK_COUNT; chunk++) {
+                    await send(
+                        device,
+                        setKeyActuationChunkPayload(
+                            chunk,
+                            keys.slice(chunk * 28, (chunk + 1) * 28),
+                            direction,
+                        ),
+                    );
+                    await send(
+                        device,
+                        setKeyActuationEndForDirectionPayload(direction),
+                    );
+                    await send(
+                        device,
+                        setKeyRapidTriggerSensitivityChunkPayload(
+                            chunk,
+                            keys.slice(chunk * 28, (chunk + 1) * 28),
+                            direction,
+                        ),
+                    );
+                }
+            }
+        },
+    },
+};
 
 function packetHeader(
     packetType: number,
@@ -44,14 +90,13 @@ function buildPacket(
     return buf;
 }
 
-export const setLayerPayload = (layer: Layer) =>
+const getLayerPayload = buildPacket(packetHeader(0x84));
+const setLayerPayload = (layer: Layer) =>
     buildPacket(packetHeader(0x04, [layer, 0, 0, 0, 0, 0]));
 
-export const getLayerPayload = buildPacket(packetHeader(0x84));
+const getFirmwarePayload = buildPacket(packetHeader(0x8f));
 
-export const getFirmwarePayload = buildPacket(packetHeader(0x8f));
-
-export function getActiveLayerKeysActuationChunkPayload(
+function getActiveLayerKeysActuationChunkPayload(
     chunk: number,
     direction: "press" | "release",
 ) {
@@ -59,10 +104,10 @@ export function getActiveLayerKeysActuationChunkPayload(
     return buildPacket(packetHeader(0xe5, [isUp, 1, chunk, 0, 0, 0]));
 }
 
-export const getActiveLayerKeysRapidTriggerChunkPayload = (chunk: number) =>
+const getActiveLayerKeysRapidTriggerChunkPayload = (chunk: number) =>
     buildPacket(packetHeader(0xe5, [0x07, 1, chunk, 0, 0, 0]));
 
-export function getActiveLayerKeysRapidTriggerSensitivityChunkPayload(
+function getActiveLayerKeysRapidTriggerSensitivityChunkPayload(
     chunk: number,
     direction: "press" | "release",
 ) {
@@ -70,7 +115,7 @@ export function getActiveLayerKeysRapidTriggerSensitivityChunkPayload(
     return buildPacket(packetHeader(0xe5, [isUp, 1, chunk, 0, 0, 0]));
 }
 
-export function setKeyRapidTriggerChunkPayload(
+function setKeyRapidTriggerChunkPayload(
     keys: Key[],
     chunk: number,
 ): Uint8Array<ArrayBuffer> {
@@ -82,14 +127,14 @@ export function setKeyRapidTriggerChunkPayload(
     );
 }
 
-export function setKeyRapidTriggerSensitivityChunkPayload(
+function setKeyRapidTriggerSensitivityChunkPayload(
     chunk: number,
     keys: Key[],
     direction: "press" | "release",
 ): Uint8Array<ArrayBuffer> {
     const directionByte = direction === "press" ? 0x02 : 0x03;
     const keysSensitivity = keys.map((key) =>
-        Math.floor(
+        Math.round(
             (direction === "press"
                 ? key.rapidTriggerPressSensitivity
                 : key.rapidTriggerReleaseSensitivity) * 100,
@@ -102,14 +147,14 @@ export function setKeyRapidTriggerSensitivityChunkPayload(
     );
 }
 
-export function setKeyActuationChunkPayload(
+function setKeyActuationChunkPayload(
     chunk: number,
     keys: Key[],
     direction: "press" | "release",
 ): Uint8Array<ArrayBuffer> {
     const directionByte = direction === "press" ? 0x00 : 0x01;
     const keysActuation = keys.map((key) =>
-        Math.floor(
+        Math.round(
             (direction === "press" ? key.downActuation : key.upActuation) * 100,
         ),
     );
@@ -120,7 +165,7 @@ export function setKeyActuationChunkPayload(
     );
 }
 
-export function setKeyActuationEndForDirectionPayload(
+function setKeyActuationEndForDirectionPayload(
     direction: "press" | "release",
 ): Uint8Array<ArrayBuffer> {
     const isUp = direction === "press" ? 0x00 : 0x01;
@@ -141,18 +186,6 @@ async function receive(device: HIDDevice) {
     return payload;
 }
 
-async function lockKeyboard<T>(
-    keyboard: Keyboard,
-    task: () => Promise<T>,
-): Promise<T> {
-    try {
-        keyboard.busy = true;
-        return await task();
-    } finally {
-        keyboard.busy = false;
-    }
-}
-
 async function getActiveLayer(device: HIDDevice): Promise<Layer> {
     await send(device, getLayerPayload);
     const payload = await receive(device);
@@ -166,107 +199,6 @@ async function getFirmwareID(device: HIDDevice): Promise<number> {
     const payload = await receive(device);
     return payload.getUint16(1, true);
 }
-
-export const KEYMAP = [
-    "esc",
-    "tab",
-    "capslock",
-    "shift",
-    "ctrl",
-    "",
-    "one",
-    "q",
-    "a",
-    "",
-    "",
-    "",
-    "two",
-    "w",
-    "s",
-    "z",
-    "win",
-    "",
-    "three",
-    "e",
-    "d",
-    "x",
-    "alt",
-    "",
-    "four",
-    "r",
-    "f",
-    "c",
-    "",
-    "",
-    "five",
-    "t",
-    "g",
-    "v",
-    "",
-    "",
-    "six",
-    "y",
-    "h",
-    "b",
-    "spacebar",
-    "",
-    "seven",
-    "u",
-    "j",
-    "n",
-    "",
-    "",
-    "eight",
-    "i",
-    "k",
-    "m",
-    "",
-    "",
-    "nine",
-    "o",
-    "l",
-    "comma",
-    "ralt",
-    "",
-    "zero",
-    "p",
-    "semicolon",
-    "dot",
-    "fn",
-    "",
-    "minus",
-    "leftbracket",
-    "apostrophe",
-    "slash",
-    "rctrl",
-    "",
-    "equal",
-    "rightbracket",
-    "",
-    "rshift",
-    "left",
-    "",
-    "backspace",
-    "backslash",
-    "enter",
-    "up",
-    "down",
-    "",
-    "home",
-    "del",
-    "pgup",
-    "pgdown",
-    "right",
-] as const;
-
-export type Key = {
-    code: number;
-    downActuation: number;
-    upActuation: number;
-    rapidTrigger: boolean;
-    rapidTriggerPressSensitivity: number;
-    rapidTriggerReleaseSensitivity: number;
-};
 
 async function getKeys(device: HIDDevice): Promise<Key[]> {
     console.debug("sending layer keys payload");
@@ -337,83 +269,4 @@ async function getKeys(device: HIDDevice): Promise<Key[]> {
     }
 
     return keys;
-}
-
-export const setLayer = async (keyboard: Keyboard, layer: Layer) =>
-    lockKeyboard(keyboard, async () => {
-        await send(keyboard.device, setLayerPayload(layer));
-        keyboard.activeLayer = layer;
-
-        await delay(250);
-        keyboard.keys = await getKeys(keyboard.device);
-    });
-
-export const applyKeys = async (keyboard: Keyboard): Promise<void> =>
-    lockKeyboard(keyboard, async () => {
-        // TODO: Track changed keys and only update the modified chunks.
-
-        for (let chunk = 0; chunk < 2; chunk++) {
-            await send(
-                keyboard.device,
-                setKeyRapidTriggerChunkPayload(
-                    keyboard.keys.slice(chunk * 56, (chunk + 1) * 56),
-                    chunk,
-                ),
-            );
-        }
-
-        for (const direction of ["press", "release"] as const) {
-            for (let chunk = 0; chunk < CHUNK_COUNT; chunk++) {
-                await send(
-                    keyboard.device,
-                    setKeyActuationChunkPayload(
-                        chunk,
-                        keyboard.keys.slice(chunk * 28, (chunk + 1) * 28),
-                        direction,
-                    ),
-                );
-                await send(
-                    keyboard.device,
-                    setKeyActuationEndForDirectionPayload(direction),
-                );
-                await send(
-                    keyboard.device,
-                    setKeyRapidTriggerSensitivityChunkPayload(
-                        chunk,
-                        keyboard.keys.slice(chunk * 28, (chunk + 1) * 28),
-                        direction,
-                    ),
-                );
-            }
-        }
-    });
-
-export const isAk680MaxVendorControl = (device: HIDDevice): boolean =>
-    device.productId === FILTER_AK680_MAX.productId &&
-    device.vendorId === FILTER_AK680_MAX.vendorId &&
-    device.collections[0]?.usagePage === 0xffff;
-
-export async function connectKeyboard(): Promise<Keyboard> {
-    const devices = await navigator.hid.requestDevice({
-        filters: [FILTER_AK680_MAX],
-    });
-    console.debug("got devices:", devices);
-    const device = devices.find(isAk680MaxVendorControl);
-    if (!device) {
-        throw new Error("no AK680 MAX found!");
-    }
-
-    console.debug("found the right device!", device);
-    await device.open();
-    console.debug("opened the device!");
-
-    const keyboard = {
-        firmwareID: await getFirmwareID(device),
-        activeLayer: await getActiveLayer(device),
-        keys: await getKeys(device),
-        device,
-        busy: false,
-    };
-
-    return keyboard;
 }

@@ -1,14 +1,13 @@
 <script lang="ts">
     import { nullOf } from "$lib";
-    import { MAX_ACTUATION, MIN_ACTUATION } from "$lib/ak680max";
     import ActuationInput from "./actuation-input.svelte";
 
     let {
         topValue = $bindable(nullOf<number>()),
         bottomValue = $bindable(nullOf<number>()),
         min = 0,
-        max = MAX_ACTUATION,
-        minCap = MIN_ACTUATION,
+        max,
+        minCap,
     } = $props();
 
     let slider: HTMLDivElement;
@@ -43,7 +42,7 @@
 >
     <div
         class="rounded-t-lg bg-blue-400"
-        style:height="{((topValue ?? MIN_ACTUATION) / range) * 100}%"
+        style:height="{((topValue ?? minCap) / range) * 100}%"
     ></div>
     <div class="relative">
         <button
@@ -85,7 +84,7 @@
         </span>
     </div>
     <div
-        style:height="{(1 - (bottomValue ?? MAX_ACTUATION) / range) * 100}%"
+        style:height="{(1 - (bottomValue ?? max) / range) * 100}%"
         class="rounded-b-lg bg-yellow-300"
     ></div>
 </div>
