@@ -15,7 +15,6 @@ export const AK680_MAX_LIGHTLESS: KeyboardConfig = {
     productId: 0x502c,
     usagePage: 0xffff,
     name: "AK680 MAX",
-    defaultActuation: 0, // ?
     minActuation: 0.1,
     maxActuation: 3.2,
     rtMinSensitivity: 0.01,
@@ -28,7 +27,8 @@ export const AK680_MAX_LIGHTLESS: KeyboardConfig = {
         setLayer: async (device: HIDDevice, layer: Layer) =>
             send(device, setLayerPayload(layer)),
         getFirmwareID: async (device: HIDDevice) => getFirmwareID(device),
-        getKeys: async (device: HIDDevice) => getKeys(device),
+        getKeys: async (device: HIDDevice, config: KeyboardConfig) =>
+            getKeys(device, config),
         // TODO: This should take a diff of keys or something
         applyKeys: async (device: HIDDevice, keys: Key[]) => {
             for (let chunk = 0; chunk < 2; chunk++) {
@@ -119,7 +119,9 @@ function setKeyRapidTriggerChunkPayload(
     keys: Key[],
     chunk: number,
 ): Uint8Array<ArrayBuffer> {
-    const keysRapidTrigger = keys.map((key) => (key.rapidTrigger ? 0x80 : 0));
+    const keysRapidTrigger = Array.from(keys, (key) =>
+        key?.rapidTrigger ? 0x80 : 0,
+    );
     assert(keysRapidTrigger.length <= 56, "a chunk can only have 56 keys");
     return buildPacket(
         packetHeader(0x65, [0x07, 1, chunk, 0, 0, 0]),
@@ -133,12 +135,14 @@ function setKeyRapidTriggerSensitivityChunkPayload(
     direction: "press" | "release",
 ): Uint8Array<ArrayBuffer> {
     const directionByte = direction === "press" ? 0x02 : 0x03;
-    const keysSensitivity = keys.map((key) =>
-        Math.round(
-            (direction === "press"
-                ? key.rapidTriggerPressSensitivity
-                : key.rapidTriggerReleaseSensitivity) * 100,
-        ),
+    const keysSensitivity = Array.from(keys, (key) =>
+        key
+            ? Math.round(
+                  (direction === "press"
+                      ? key.rapidTriggerPressSensitivity
+                      : key.rapidTriggerReleaseSensitivity) * 100,
+              )
+            : 0,
     );
     assert(keysSensitivity.length <= 28, "a chunk can only have 28 keys");
     return buildPacket(
@@ -153,10 +157,14 @@ function setKeyActuationChunkPayload(
     direction: "press" | "release",
 ): Uint8Array<ArrayBuffer> {
     const directionByte = direction === "press" ? 0x00 : 0x01;
-    const keysActuation = keys.map((key) =>
-        Math.round(
-            (direction === "press" ? key.downActuation : key.upActuation) * 100,
-        ),
+    const keysActuation = Array.from(keys, (key) =>
+        key
+            ? Math.round(
+                  (direction === "press"
+                      ? key.downActuation
+                      : key.upActuation) * 100,
+              )
+            : 0,
     );
     assert(keysActuation.length <= 28, "a chunk can only have 28 keys");
     return buildPacket(
@@ -200,18 +208,23 @@ async function getFirmwareID(device: HIDDevice): Promise<number> {
     return payload.getUint16(1, true);
 }
 
-async function getKeys(device: HIDDevice): Promise<Key[]> {
+async function getKeys(
+    device: HIDDevice,
+    config: KeyboardConfig,
+): Promise<Key[]> {
     console.debug("sending layer keys payload");
 
     const keys: Key[] = [];
-    for (let key = 0; key < 128; key++) {
-        keys[key] = {
-            code: key,
-            downActuation: 0,
+
+    for (const index in config.keyList) {
+        const code = Number(index);
+        keys[code] = {
+            code,
             upActuation: 0,
+            downActuation: 0,
             rapidTrigger: false,
-            rapidTriggerPressSensitivity: 0.2,
-            rapidTriggerReleaseSensitivity: 0.2,
+            rapidTriggerPressSensitivity: 0,
+            rapidTriggerReleaseSensitivity: 0,
         };
     }
 
@@ -220,9 +233,10 @@ async function getKeys(device: HIDDevice): Promise<Key[]> {
         const payload = await receive(device);
         const chunkKeys = new Uint8Array(payload.buffer);
         for (let index = 0; index < chunkKeys.length; ++index) {
-            const key = chunk * 64 + index;
-            if (key >= keys.length) break;
-            keys[key].rapidTrigger = chunkKeys[index] === 0x80;
+            const key = keys[chunk * 64 + index];
+            if (!key) break;
+
+            key.rapidTrigger = chunkKeys[index] === 0x80;
         }
     }
 
@@ -239,6 +253,8 @@ async function getKeys(device: HIDDevice): Promise<Key[]> {
                 const payload = await receive(device);
                 new Uint16Array(payload.buffer).forEach((actuation, index) => {
                     const key = keys[chunk * 32 + index];
+                    if (!key) return;
+
                     if (direction === "press") {
                         key.downActuation = actuation / 100;
                     } else {
@@ -258,6 +274,8 @@ async function getKeys(device: HIDDevice): Promise<Key[]> {
                 const payload = await receive(device);
                 new Uint16Array(payload.buffer).forEach((actuation, index) => {
                     const key = keys[chunk * 32 + index];
+                    if (!key) return;
+
                     if (direction === "press") {
                         key.rapidTriggerPressSensitivity = actuation / 100;
                     } else {

@@ -347,7 +347,7 @@
         "column": 15,
         "row": 3
     },
-    "ContrlLeft": {
+    "ControlLeft": {
         "name": "Ctrl",
         "width": 1.25,
         "column": 0,

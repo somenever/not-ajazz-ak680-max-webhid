@@ -12,7 +12,7 @@ const AK680_DRIVER: KeyboardDriver = {
     getFirmwareID: async (device: HIDDevice) => {
         throw new Error("Function not implemented.");
     },
-    getKeys: async (device: HIDDevice) => {
+    getKeys: async (device: HIDDevice, config: KeyboardConfig) => {
         throw new Error("Function not implemented.");
     },
     applyKeys: async (device: HIDDevice, keys: Key[]) => {
@@ -27,7 +27,6 @@ const createAK680Config = (
     vendorId: 3141,
     usagePage: 65383,
     name: "AK680 MAX",
-    defaultActuation: 1.2,
     maxActuation: 3.4,
     minActuation: 0.1,
     rtMinSensitivity: 0.01,

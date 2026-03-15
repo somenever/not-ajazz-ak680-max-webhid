@@ -1,3 +1,4 @@
+import { delay } from "$lib";
 import { AK680_MAX_LIGHTLESS } from "./ak680max-lightless";
 import {
     AK680_MAX,
@@ -28,7 +29,6 @@ export type KeyboardConfig = {
 
     name: string;
 
-    defaultActuation: number;
     minActuation: number;
     maxActuation: number;
 
@@ -49,7 +49,7 @@ export interface KeyboardDriver {
 
     getFirmwareID(device: HIDDevice): Promise<number>;
 
-    getKeys(device: HIDDevice): Promise<Key[]>;
+    getKeys(device: HIDDevice, config: KeyboardConfig): Promise<Key[]>;
     applyKeys(device: HIDDevice, keys: Key[]): Promise<void>;
 }
 
@@ -105,7 +105,7 @@ export async function connectKeyboard(): Promise<Keyboard> {
         return {
             activeLayer: await config.driver.getLayer(device),
             firmwareID: await config.driver.getFirmwareID(device),
-            keys: await config.driver.getKeys(device),
+            keys: await config.driver.getKeys(device, config),
             busy: false,
             device,
             config,
@@ -128,9 +128,16 @@ async function lockKeyboard<T>(
 }
 
 export const setLayer = async (keyboard: Keyboard, layer: Layer) =>
-    lockKeyboard(keyboard, () =>
-        keyboard.config.driver.setLayer(keyboard.device, layer),
-    );
+    lockKeyboard(keyboard, async () => {
+        await keyboard.config.driver.setLayer(keyboard.device, layer);
+        keyboard.activeLayer = layer;
+
+        await delay(250);
+        keyboard.keys = await keyboard.config.driver.getKeys(
+            keyboard.device,
+            keyboard.config,
+        );
+    });
 
 export const applyKeys = async (keyboard: Keyboard, keys: Key[]) =>
     lockKeyboard(keyboard, () =>
