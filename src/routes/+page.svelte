@@ -25,6 +25,7 @@
 
     let showDisclaimer = $state(false);
     let showUnsupportedBrowser = $state(false);
+    let errorMessage = $state(nullOf<string>());
 
     let layerNames = storable<string[]>("layerNames", []);
     let editLayerNamesPopup = $state(false);
@@ -71,7 +72,13 @@
                     return;
                 }
 
-                keyboard = await connectKeyboard();
+                try {
+                    keyboard = await connectKeyboard();
+                } catch (err) {
+                    console.error(err);
+                    errorMessage =
+                        err instanceof Error ? err.message : "Couldn't connect to keyboard";
+                }
             }}
         >
             <IconZap />Connect
@@ -174,6 +181,21 @@
         </p>
         <Button onclick={() => (showDisclaimer = false)}>
             <IconCheck />I understand
+        </Button>
+    </Popup>
+{/if}
+
+{#if errorMessage}
+    <Popup modal close={() => (errorMessage = null)} class="flex max-w-140 flex-col gap-3 p-6">
+        <h2 class="flex flex-col items-center gap-2 text-xl font-bold">
+            <IconTriangleAlert class="size-12" />
+            Error
+        </h2>
+        <p class="mb-4">
+            {errorMessage}
+        </p>
+        <Button onclick={() => (errorMessage = null)}>
+            <IconCheck />OK
         </Button>
     </Popup>
 {/if}

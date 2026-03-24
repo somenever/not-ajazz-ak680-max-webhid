@@ -103,21 +103,28 @@ export async function connectKeyboard(): Promise<Keyboard> {
         const config = findKeyboardConfigForDevice(device);
         if (!config) continue;
 
-        await device.open();
+        try {
+            await device.open();
 
-        const keyboard: Keyboard = {
-            device,
-            config,
-            driverState:
-                (await config.driver.createDriverState?.(device)) ?? null,
-            activeLayer: 0,
-            rtPrecision: 100,
-            keys: [],
-            busy: false,
-        };
-        keyboard.activeLayer = await config.driver.getLayer(keyboard);
-        keyboard.keys = await config.driver.getKeys(keyboard);
-        return keyboard;
+            const keyboard: Keyboard = {
+                device,
+                config,
+                driverState:
+                    (await config.driver.createDriverState?.(device)) ?? null,
+                activeLayer: 0,
+                rtPrecision: 100,
+                keys: [],
+                busy: false,
+            };
+            keyboard.activeLayer = await config.driver.getLayer(keyboard);
+            keyboard.keys = await config.driver.getKeys(keyboard);
+            return keyboard;
+        } catch (err) {
+            const causeMessage = err instanceof Error ? ": " + err.message : "";
+            throw new Error("Failed to initialize keyboard" + causeMessage, {
+                cause: err,
+            });
+        }
     }
 
     throw new Error("Unsupported keyboard");
