@@ -1,6 +1,5 @@
 <script lang="ts">
     import { onMount } from "svelte";
-    import IconArrowRight from "~icons/lucide/arrow-right";
     import IconCheck from "~icons/lucide/check";
     import IconDot from "~icons/lucide/dot";
     import IconPencilLine from "~icons/lucide/pencil-line";
@@ -26,7 +25,6 @@
 
     let showDisclaimer = $state(false);
     let showUnsupportedBrowser = $state(false);
-    let showUnsupportedKeyboard = $state(false);
 
     let layerNames = storable<string[]>("layerNames", []);
     let editLayerNamesPopup = $state(false);
@@ -62,9 +60,9 @@
     >
         <h1 class="text-2xl font-bold">Not AJAZZ AK680 MAX Web Utility</h1>
         <p class="mb-2">
-            A web-based configuration software for the AJAZZ AK680 MAX keyboard, built with WebHID.
-            Works on Linux, macOS, and Windows. Configure actuation, rapid trigger, and layers.
-            Connect your totally-not-a-keyboard by pressing the button below.
+            A web-based configuration software for the AJAZZ AK680 MAX keyboard (and a few others),
+            built with WebHID. Works on Linux, macOS, and Windows. Configure actuation, rapid
+            trigger, and layers. Connect your totally-not-a-keyboard by pressing the button below.
         </p>
         <Button
             onclick={async () => {
@@ -74,9 +72,6 @@
                 }
 
                 keyboard = await connectKeyboard();
-                if (keyboard.firmwareID !== 2317) {
-                    showUnsupportedKeyboard = true;
-                }
             }}
         >
             <IconZap />Connect
@@ -87,10 +82,9 @@
         <div
             class="flex w-full flex-col gap-2 rounded-2xl bg-stone-800 p-4 shadow-md shadow-black/50"
         >
-            <h2 class="text-xl font-bold">AJAZZ AK680 MAX</h2>
+            <h2 class="text-xl font-bold">{keyboard.config.name}</h2>
             <div class="flex gap-6">
                 <p class="text-green-400">Connected</p>
-                <p class="opacity-50">ID: {keyboard.firmwareID}</p>
             </div>
         </div>
 
@@ -180,27 +174,6 @@
         </p>
         <Button onclick={() => (showDisclaimer = false)}>
             <IconCheck />I understand
-        </Button>
-    </Popup>
-{/if}
-
-{#if showUnsupportedKeyboard}
-    <Popup
-        modal
-        close={() => (showUnsupportedKeyboard = false)}
-        class="flex max-w-140 flex-col gap-3 p-6"
-    >
-        <h2 class="flex flex-col items-center gap-2 text-xl font-bold">
-            <IconTriangleAlert class="size-12" />
-            Unsupported Keyboard
-        </h2>
-        <p class="mb-4">
-            This software has only been tested with the AJAZZ AK680 MAX No RGB keyboard (ID 2317).
-            Your keyboard (ID {keyboard?.firmwareID ?? "unknown"}) may be different and may not work
-            as intended.
-        </p>
-        <Button onclick={() => (showUnsupportedKeyboard = false)}>
-            <IconArrowRight />Proceed anyway
         </Button>
     </Popup>
 {/if}
