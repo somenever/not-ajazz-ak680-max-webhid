@@ -2,6 +2,7 @@ import { assert } from "$lib";
 import {
     isLayer,
     type Key,
+    type Keyboard,
     type KeyboardConfig,
     type Layer,
 } from "$lib/keyboard";
@@ -10,7 +11,9 @@ import { AK680_MAX_LIGHTLESS_KEY_LIST } from "./key-lists/ak680max-lightless";
 const REPORT_SIZE = 64;
 const CHUNK_COUNT = 4;
 
-export const AK680_MAX_LIGHTLESS: KeyboardConfig = {
+type DriverState = null;
+
+export const AK680_MAX_LIGHTLESS: KeyboardConfig<DriverState> = {
     vendorId: 0x3151,
     productId: 0x502c,
     usagePage: 0xffff,
@@ -19,21 +22,21 @@ export const AK680_MAX_LIGHTLESS: KeyboardConfig = {
     maxActuation: 3.2,
     rtMinSensitivity: 0.01,
     rtMaxSensitivity: 2,
-    features: ["calibration", "socd", "dks", "mt", "rs", "tgl"],
+    features: ["calibration", "layers", "socd", "dks", "mt", "rs", "tgl"],
     pollingRates: [1000],
     keyList: AK680_MAX_LIGHTLESS_KEY_LIST,
     driver: {
-        getLayer: async (device: HIDDevice) => getActiveLayer(device),
-        setLayer: async (device: HIDDevice, layer: Layer) =>
-            send(device, setLayerPayload(layer)),
-        getFirmwareID: async (device: HIDDevice) => getFirmwareID(device),
-        getKeys: async (device: HIDDevice, config: KeyboardConfig) =>
-            getKeys(device, config),
+        getLayer: async (keyboard: Keyboard<DriverState>) =>
+            getActiveLayer(keyboard.device),
+        setLayer: async (keyboard: Keyboard<DriverState>, layer: Layer) =>
+            send(keyboard.device, setLayerPayload(layer)),
+        getKeys: async (keyboard: Keyboard<DriverState>) =>
+            getKeys(keyboard.device, keyboard.config),
         // TODO: This should take a diff of keys or something
-        applyKeys: async (device: HIDDevice, keys: Key[]) => {
+        applyKeys: async (keyboard: Keyboard<DriverState>, keys: Key[]) => {
             for (let chunk = 0; chunk < 2; chunk++) {
                 await send(
-                    device,
+                    keyboard.device,
                     setKeyRapidTriggerChunkPayload(
                         keys.slice(chunk * 56, (chunk + 1) * 56),
                         chunk,
@@ -44,7 +47,7 @@ export const AK680_MAX_LIGHTLESS: KeyboardConfig = {
             for (const direction of ["press", "release"] as const) {
                 for (let chunk = 0; chunk < CHUNK_COUNT; chunk++) {
                     await send(
-                        device,
+                        keyboard.device,
                         setKeyActuationChunkPayload(
                             chunk,
                             keys.slice(chunk * 28, (chunk + 1) * 28),
@@ -52,11 +55,11 @@ export const AK680_MAX_LIGHTLESS: KeyboardConfig = {
                         ),
                     );
                     await send(
-                        device,
+                        keyboard.device,
                         setKeyActuationEndForDirectionPayload(direction),
                     );
                     await send(
-                        device,
+                        keyboard.device,
                         setKeyRapidTriggerSensitivityChunkPayload(
                             chunk,
                             keys.slice(chunk * 28, (chunk + 1) * 28),
@@ -205,6 +208,7 @@ async function getActiveLayer(device: HIDDevice): Promise<Layer> {
 async function getFirmwareID(device: HIDDevice): Promise<number> {
     await send(device, getFirmwarePayload);
     const payload = await receive(device);
+    console.log("firmware", payload);
     return payload.getUint16(1, true);
 }
 

@@ -20,9 +20,10 @@ export type KeyboardFeature =
     | "mt"
     | "tgl"
     | "rs"
-    | "calibration";
+    | "calibration"
+    | "layers";
 
-export type KeyboardConfig = {
+export type KeyboardConfig<T = unknown> = {
     vendorId: number;
     productId: number;
     usagePage: number;
@@ -40,22 +41,23 @@ export type KeyboardConfig = {
 
     keyList: readonly string[];
 
-    driver: KeyboardDriver;
+    driver: KeyboardDriver<T>;
 };
 
-export interface KeyboardDriver {
-    getLayer(device: HIDDevice): Promise<Layer>;
-    setLayer(device: HIDDevice, layer: Layer): Promise<void>;
+export interface KeyboardDriver<T = unknown> {
+    createDriverState?: (device: HIDDevice) => Promise<T>;
 
-    getFirmwareID(device: HIDDevice): Promise<number>;
+    getLayer(keyboard: Keyboard<T>): Promise<Layer>;
+    setLayer(keyboard: Keyboard<T>, layer: Layer): Promise<void>;
 
-    getKeys(device: HIDDevice, config: KeyboardConfig): Promise<Key[]>;
-    applyKeys(device: HIDDevice, keys: Key[]): Promise<void>;
+    getKeys(keyboard: Keyboard<T>): Promise<Key[]>;
+    applyKeys(keyboard: Keyboard<T>, keys: Key[]): Promise<void>;
 }
 
-export type Keyboard = {
-    config: KeyboardConfig;
-    firmwareID: number;
+export type Keyboard<T = unknown> = {
+    config: KeyboardConfig<T>;
+    driverState: T;
+    rtPrecision: number;
     activeLayer: Layer;
     device: HIDDevice;
     keys: Key[];
@@ -71,7 +73,7 @@ export type Key = {
     rapidTriggerReleaseSensitivity: number;
 };
 
-export const KEYBOARDS: KeyboardConfig[] = [
+export const KEYBOARDS = [
     AK680_MAX_LIGHTLESS,
     AK680_MAX,
     AK680_V2_32956,
@@ -102,14 +104,20 @@ export async function connectKeyboard(): Promise<Keyboard> {
         if (!config) continue;
 
         await device.open();
-        return {
-            activeLayer: await config.driver.getLayer(device),
-            firmwareID: await config.driver.getFirmwareID(device),
-            keys: await config.driver.getKeys(device, config),
-            busy: false,
+
+        const keyboard: Keyboard = {
             device,
             config,
+            driverState:
+                (await config.driver.createDriverState?.(device)) ?? null,
+            activeLayer: 0,
+            rtPrecision: 100,
+            keys: [],
+            busy: false,
         };
+        keyboard.activeLayer = await config.driver.getLayer(keyboard);
+        keyboard.keys = await config.driver.getKeys(keyboard);
+        return keyboard;
     }
 
     throw new Error("Unsupported keyboard");
@@ -129,17 +137,14 @@ async function lockKeyboard<T>(
 
 export const setLayer = async (keyboard: Keyboard, layer: Layer) =>
     lockKeyboard(keyboard, async () => {
-        await keyboard.config.driver.setLayer(keyboard.device, layer);
+        await keyboard.config.driver.setLayer(keyboard, layer);
         keyboard.activeLayer = layer;
 
         await delay(250);
-        keyboard.keys = await keyboard.config.driver.getKeys(
-            keyboard.device,
-            keyboard.config,
-        );
+        keyboard.keys = await keyboard.config.driver.getKeys(keyboard);
     });
 
 export const applyKeys = async (keyboard: Keyboard, keys: Key[]) =>
     lockKeyboard(keyboard, () =>
-        keyboard.config.driver.applyKeys(keyboard.device, keys),
+        keyboard.config.driver.applyKeys(keyboard, keys),
     );
