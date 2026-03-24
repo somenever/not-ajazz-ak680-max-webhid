@@ -32,7 +32,7 @@ const AK680_DRIVER: KeyboardDriver<DriverState> = {
         );
         const view = new DataView(response.buffer);
 
-        return {
+        const state: DriverState = {
             // BCD number
             version:
                 ((response[8] & 0x0f) +
@@ -45,6 +45,8 @@ const AK680_DRIVER: KeyboardDriver<DriverState> = {
             chargeStatus: response[18],
             rtPrecision: response[29],
         };
+        console.log("device info:", state);
+        return state;
     },
     getLayer: async (keyboard: Keyboard<DriverState>) => {
         throw new Error("Function not implemented.");
@@ -127,6 +129,7 @@ async function sendCommand(
     const responsePackets: ResponsePacket[] = [];
 
     for (let chunk = 0; chunk < chunkCount; ++chunk) {
+        console.log("chunk", chunk);
         const offset = chunk * DATA_SIZE;
         const bytesLeft = data.byteLength - chunk * DATA_SIZE;
         const chunkSize = chunk === chunkCount - 1 ? bytesLeft : DATA_SIZE;
@@ -154,6 +157,7 @@ async function sendCommand(
                         }
                     };
                     device.addEventListener("inputreport", inputReportHandler);
+                    console.log("sending report", report);
                     device.sendReport(0, report).catch((err) => {
                         reject(err);
                     });
@@ -166,6 +170,7 @@ async function sendCommand(
                     ),
             },
         );
+        console.log("response", responsePacket);
         responsePackets.push(responsePacket);
     }
     if (responsePackets.length === 0)
