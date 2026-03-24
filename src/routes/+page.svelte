@@ -94,24 +94,26 @@
             </div>
         </div>
 
-        <div class="flex flex-col gap-2 rounded-2xl bg-stone-800 p-4 shadow-md shadow-black/50">
-            <h2 class="text-lg font-semibold">Layers</h2>
-            <div class="flex flex-wrap gap-2">
-                {#each LAYERS as layer}
-                    <Button onclick={() => setLayer(keyboard!, layer)} disabled={keyboard.busy}>
-                        {#if keyboard!.activeLayer === layer}
-                            <IconCheck />
-                        {/if}
-                        {$layerNames[layer] ?? `Layer ${layer + 1}`}
-                    </Button>
-                {/each}
-                <Tooltip label="Rename layers">
-                    <IconButton onclick={() => (editLayerNamesPopup = true)}>
-                        <IconPencilLine />
-                    </IconButton>
-                </Tooltip>
+        {#if keyboard.config.features.includes("layers")}
+            <div class="flex flex-col gap-2 rounded-2xl bg-stone-800 p-4 shadow-md shadow-black/50">
+                <h2 class="text-lg font-semibold">Layers</h2>
+                <div class="flex flex-wrap gap-2">
+                    {#each LAYERS as layer}
+                        <Button onclick={() => setLayer(keyboard!, layer)} disabled={keyboard.busy}>
+                            {#if keyboard!.activeLayer === layer}
+                                <IconCheck />
+                            {/if}
+                            {$layerNames[layer] ?? `Layer ${layer + 1}`}
+                        </Button>
+                    {/each}
+                    <Tooltip label="Rename layers">
+                        <IconButton onclick={() => (editLayerNamesPopup = true)}>
+                            <IconPencilLine />
+                        </IconButton>
+                    </Tooltip>
+                </div>
             </div>
-        </div>
+        {/if}
 
         <div class="flex flex-col gap-4 rounded-2xl bg-stone-800 p-4 shadow-md shadow-black/50">
             <KeyOptionsTab {keyboard} />
