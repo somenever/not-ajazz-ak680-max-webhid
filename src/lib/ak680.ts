@@ -24,6 +24,8 @@ enum Command {
 
 /// A driver for RGB models of the AK680 MAX as well as the AK680 V2
 const AK680_DRIVER: KeyboardDriver<DriverState> = {
+    match: (device: HIDDevice) =>
+        device.collections.some((c) => c.usagePage === 65383),
     createDriverState: async (device: HIDDevice) => {
         const response = await sendCommand(
             device,
@@ -67,7 +69,6 @@ const createAK680Config = (
 ): KeyboardConfig => ({
     driver: AK680_DRIVER,
     vendorId: 3141,
-    usagePage: 65383,
     name: "AK680 MAX",
     maxActuation: 3.4,
     minActuation: 0.1,

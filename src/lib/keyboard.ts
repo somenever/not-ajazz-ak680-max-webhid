@@ -26,7 +26,6 @@ export type KeyboardFeature =
 export type KeyboardConfig<T = unknown> = {
     vendorId: number;
     productId: number;
-    usagePage: number;
 
     name: string;
 
@@ -45,6 +44,8 @@ export type KeyboardConfig<T = unknown> = {
 };
 
 export interface KeyboardDriver<T = unknown> {
+    match?: (device: HIDDevice) => boolean;
+
     createDriverState?: (device: HIDDevice) => Promise<T>;
 
     getLayer(keyboard: Keyboard<T>): Promise<Layer>;
@@ -86,9 +87,7 @@ export const findKeyboardConfigForDevice = (device: HIDDevice) =>
         (k) =>
             k.vendorId === device.vendorId &&
             k.productId === device.productId &&
-            device.collections.some(
-                (collection) => k.usagePage === collection.usagePage,
-            ),
+            (k.driver.match?.(device) ?? true),
     );
 
 export async function connectKeyboard(): Promise<Keyboard> {

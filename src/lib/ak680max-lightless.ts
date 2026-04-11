@@ -16,7 +16,6 @@ type DriverState = null;
 export const AK680_MAX_LIGHTLESS: KeyboardConfig<DriverState> = {
     vendorId: 0x3151,
     productId: 0x502c,
-    usagePage: 0xffff,
     name: "AK680 MAX",
     minActuation: 0.1,
     maxActuation: 3.2,
@@ -26,6 +25,8 @@ export const AK680_MAX_LIGHTLESS: KeyboardConfig<DriverState> = {
     pollingRates: [1000],
     keyList: AK680_MAX_LIGHTLESS_KEY_LIST,
     driver: {
+        match: (device: HIDDevice) =>
+            device.collections[0].usagePage === 0xffff,
         getLayer: async (keyboard: Keyboard<DriverState>) =>
             getActiveLayer(keyboard.device),
         setLayer: async (keyboard: Keyboard<DriverState>, layer: Layer) =>
