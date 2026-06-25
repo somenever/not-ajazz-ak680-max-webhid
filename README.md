@@ -10,7 +10,7 @@ This project is presented as a work of fiction, solely for the purpose of entert
 
 ## Supported Models
 - AK680 MAX Black No RGB (Firmware: ID2317_V303)
-- WIP: AK680V2, AK680 MAX RGB (Tracking Issue: #1)
+- WIP: AK680V2, AK680 MAX RGB (Tracking Issue: [#1](https://github.com/somenever/not-ajazz-ak680-max-webhid/issues/1))
 - YMMV for other models, but feel free to (not) try it out! Also, if you're just looking for a way to configure your keyboard on Linux - AJAZZ's official website has WebHID support for *some* models - but not mine (which is why I made this utility in the first place). You can find their software [here](https://ajazz.driveall.cn). As long as you have the appropriate udev rules set up and your device is supported, the website might just work on Linux. Note that this doesn't mean that other models will not be supported in the future by this tool. Feel free to submit an [issue](https://github.com/somenever/not-ajazz-ak680-max-webhid/issues/new) if you want your model supported.
 
 ## Developing
