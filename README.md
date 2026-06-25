@@ -8,9 +8,10 @@ This project is presented as a work of fiction, solely for the purpose of entert
 - Viewing and changing actuation points
 - Rapid Trigger settings
 
-## Tested Models
+## Supported Models
 - AK680 MAX Black No RGB (Firmware: ID2317_V303)
-- YMMV for other models, but feel free to (not) try it out! Also, if you're just looking for a way to configure your keyboard on Linux - the Chinese company that makes the official software has WebHID support for *some* models - but not mine (which is why I made this utility in the first place). You can find it [here](https://qmk.top), just make sure that you spoof your user agent to a Windows or Mac one and don't use the IOT driver. As long as you have the appropriate udev rules set up and your device is supported, the website might just work on Linux.
+- WIP: AK680V2, AK680 MAX RGB (Tracking Issue: #1)
+- YMMV for other models, but feel free to (not) try it out! Also, if you're just looking for a way to configure your keyboard on Linux - AJAZZ's official website has WebHID support for *some* models - but not mine (which is why I made this utility in the first place). You can find their software [here](https://ajazz.driveall.cn). As long as you have the appropriate udev rules set up and your device is supported, the website might just work on Linux. Note that this doesn't mean that other models will not be supported in the future by this tool. Feel free to submit an [issue](https://github.com/somenever/not-ajazz-ak680-max-webhid/issues/new) if you want your model supported.
 
 ## Developing
 The web UI is built with Bun and SvelteKit. Simply install the dependencies and run `bun dev` to start the development server.
