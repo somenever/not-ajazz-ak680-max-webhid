@@ -5,8 +5,8 @@ import type {
     KeyboardConfig,
     KeyboardDriver,
     Keyboard,
-} from "./keyboard";
-import { AK680_MAX_KEY_LIST } from "./key-lists/ak680max";
+} from "$lib/keyboard";
+import { AK680_MAX_KEY_LIST } from "$lib/key-lists/ak680max";
 
 type DriverState = {
     // TODO: Some of these may be moved into Keyboard and shown in the UI.

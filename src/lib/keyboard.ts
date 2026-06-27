@@ -6,6 +6,7 @@ import {
     AK680_V2_32961,
     AK680_V2_32962,
 } from "./ak680";
+import { DUMMY_KEYBOARD } from "./dummy-keyboard";
 
 export const LAYERS = [0, 1, 2, 3] as const;
 
@@ -75,6 +76,7 @@ export type Key = {
 };
 
 export const KEYBOARDS = [
+    DUMMY_KEYBOARD,
     AK680_MAX_LIGHTLESS,
     AK680_MAX,
     AK680_V2_32956,
@@ -90,7 +92,33 @@ export const findKeyboardConfigForDevice = (device: HIDDevice) =>
             (k.driver.match?.(device) ?? true),
     );
 
+async function createKeyboard(
+    device: HIDDevice,
+    config: KeyboardConfig,
+): Promise<Keyboard> {
+    const keyboard: Keyboard = {
+        device,
+        config,
+        driverState: (await config.driver.createDriverState?.(device)) ?? null,
+        activeLayer: 0,
+        rtPrecision: 100,
+        keys: [],
+        busy: false,
+    };
+    if (keyboard.config.features.includes("layers")) {
+        keyboard.activeLayer = await config.driver.getLayer(keyboard);
+    }
+    keyboard.keys = await config.driver.getKeys(keyboard);
+    return keyboard;
+}
+
 export async function connectKeyboard(): Promise<Keyboard> {
+    if (new URL(window.location.href).searchParams.get("dummy") === "1")
+        return createKeyboard(
+            { opened: true, close() {} } as HIDDevice,
+            DUMMY_KEYBOARD,
+        );
+
     const filters = KEYBOARDS.map((k) => ({
         vendorId: k.vendorId,
         productId: k.productId,
@@ -104,20 +132,7 @@ export async function connectKeyboard(): Promise<Keyboard> {
 
         try {
             await device.open();
-
-            const keyboard: Keyboard = {
-                device,
-                config,
-                driverState:
-                    (await config.driver.createDriverState?.(device)) ?? null,
-                activeLayer: 0,
-                rtPrecision: 100,
-                keys: [],
-                busy: false,
-            };
-            keyboard.activeLayer = await config.driver.getLayer(keyboard);
-            keyboard.keys = await config.driver.getKeys(keyboard);
-            return keyboard;
+            return createKeyboard(device, config);
         } catch (err) {
             const causeMessage = err instanceof Error ? ": " + err.message : "";
             throw new Error("Failed to initialize keyboard" + causeMessage, {

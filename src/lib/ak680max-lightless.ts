@@ -6,7 +6,7 @@ import {
     type KeyboardConfig,
     type Layer,
 } from "$lib/keyboard";
-import { AK680_MAX_LIGHTLESS_KEY_LIST } from "./key-lists/ak680max-lightless";
+import { AK680_MAX_LIGHTLESS_KEY_LIST } from "$lib/key-lists/ak680max-lightless";
 
 const REPORT_SIZE = 64;
 const CHUNK_COUNT = 4;
@@ -239,6 +239,7 @@ async function getKeys(
         const chunkKeys = new Uint8Array(payload.buffer);
         for (let index = 0; index < chunkKeys.length; ++index) {
             const key = keys[chunk * 64 + index];
+            // FIXME: why is this a break
             if (!key) break;
 
             key.rapidTrigger = chunkKeys[index] === 0x80;
