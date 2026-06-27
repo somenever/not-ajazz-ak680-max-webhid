@@ -20,6 +20,8 @@ type DriverState = {
 
 enum Command {
     GetDeviceInfo = 16,
+    GetKeyMappings = 18,
+    GetKeyActuations = 23,
 }
 
 /// A driver for RGB models of the AK680 MAX as well as the AK680 V2
@@ -57,7 +59,43 @@ const AK680_DRIVER: KeyboardDriver<DriverState> = {
         throw new Error("Function not implemented.");
     },
     getKeys: async (keyboard: Keyboard<DriverState>) => {
-        throw new Error("Function not implemented.");
+        const response = await sendCommand(
+            keyboard.device,
+            Command.GetKeyActuations,
+            new Uint8Array(1008),
+        );
+        const view = new DataView(response.buffer);
+
+        const precision = keyboard.driverState.rtPrecision === 1 ? 1000 : 100;
+        const keys: Key[] = [];
+
+        for (const index in keyboard.config.keyList) {
+            const code = Number(index);
+            const offset = code * 8;
+            const axisType = response[offset];
+            const flags = response[offset + 1];
+            const fullRapidTrigger = (flags & 1) !== 0;
+            const actuationPoint = view.getUint16(offset + 2, true) / 100;
+            const rtPress = view.getUint16(offset + 4, true) / precision;
+            const rtRelease = view.getUint16(offset + 6, true) / precision;
+            console.log(
+                `key = ${keyboard.config.keyList[code]}; offset = ${offset}; axisType = ${axisType}; actuation = ${actuationPoint}; fullRT = ${fullRapidTrigger}; rtPress = ${rtPress} ; rtRelease = ${rtRelease}`,
+            );
+            keys[code] = {
+                code,
+                downActuation: actuationPoint,
+                // no up actuation on these models
+                upActuation: 0,
+                rapidTrigger: rtPress !== 0,
+                rapidTriggerPressSensitivity: rtPress,
+                rapidTriggerReleaseSensitivity: rtRelease,
+            };
+            console.log(
+                `key = ${keyboard.config.keyList[code]}; code = ${code}; axisType = ${axisType}; fullRT = ${fullRapidTrigger}`,
+            );
+        }
+
+        return keys;
     },
     applyKeys: async (keyboard: Keyboard<DriverState>, keys: Key[]) => {
         throw new Error("Function not implemented.");
