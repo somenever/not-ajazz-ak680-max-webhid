@@ -22,7 +22,8 @@ export type KeyboardFeature =
     | "tgl"
     | "rs"
     | "calibration"
-    | "layers";
+    | "layers"
+    | "release-actuation";
 
 export type KeyboardConfig<T = unknown> = {
     vendorId: number;

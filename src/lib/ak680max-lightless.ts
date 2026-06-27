@@ -21,7 +21,16 @@ export const AK680_MAX_LIGHTLESS: KeyboardConfig<DriverState> = {
     maxActuation: 3.2,
     rtMinSensitivity: 0.01,
     rtMaxSensitivity: 2,
-    features: ["calibration", "layers", "socd", "dks", "mt", "rs", "tgl"],
+    features: [
+        "calibration",
+        "layers",
+        "socd",
+        "dks",
+        "mt",
+        "rs",
+        "tgl",
+        "release-actuation",
+    ],
     pollingRates: [1000],
     keyList: AK680_MAX_LIGHTLESS_KEY_LIST,
     driver: {

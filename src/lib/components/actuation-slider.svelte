@@ -5,6 +5,7 @@
     let {
         topValue = $bindable(nullOf<number>()),
         bottomValue = $bindable(nullOf<number>()),
+        disableBottomValue = false,
         min = 0,
         max,
         minCap,
@@ -28,7 +29,11 @@
             ((e.clientY - sliderRect.top) / sliderRect.height) * range,
         );
         if (dragging === "top") {
-            topValue = Math.min(value, bottomValue);
+            if (disableBottomValue) {
+                topValue = Math.min(value);
+            } else {
+                topValue = Math.min(value, bottomValue);
+            }
         } else if (dragging === "bottom") {
             bottomValue = Math.max(value, topValue);
         }
@@ -64,27 +69,30 @@
         </span>
     </div>
     <div class="flex-1"></div>
-    <div class="relative">
-        <button
-            class="absolute top-1/2 left-1/2 h-2.5 w-2.5 -translate-1/2 rounded-full border-none bg-yellow-100 outline-none"
-            onmousedown={() => (dragging = "bottom")}
-            aria-labelledby="bottom-thumb-label"
-        ></button>
-        <span
-            class="absolute top-1/2 left-4 flex w-max -translate-y-1/2 items-center gap-1 text-yellow-100"
-            id="bottom-thumb-label"
-        >
-            <span class="text-xs font-bold uppercase">Release</span>
-            {#if bottomValue}
-                <ActuationInput class="w-8 text-sm!" bind:value={bottomValue} />
-                mm
-            {:else}
-                ...
-            {/if}
-        </span>
-    </div>
-    <div
-        style:height="{(1 - (bottomValue ?? max) / range) * 100}%"
-        class="rounded-b-lg bg-yellow-300"
-    ></div>
+
+    {#if !disableBottomValue}
+        <div class="relative">
+            <button
+                class="absolute top-1/2 left-1/2 h-2.5 w-2.5 -translate-1/2 rounded-full border-none bg-yellow-100 outline-none"
+                onmousedown={() => (dragging = "bottom")}
+                aria-labelledby="bottom-thumb-label"
+            ></button>
+            <span
+                class="absolute top-1/2 left-4 flex w-max -translate-y-1/2 items-center gap-1 text-yellow-100"
+                id="bottom-thumb-label"
+            >
+                <span class="text-xs font-bold uppercase">Release</span>
+                {#if bottomValue}
+                    <ActuationInput class="w-8 text-sm!" bind:value={bottomValue} />
+                    mm
+                {:else}
+                    ...
+                {/if}
+            </span>
+        </div>
+        <div
+            style:height="{(1 - (bottomValue ?? max) / range) * 100}%"
+            class="rounded-b-lg bg-yellow-300"
+        ></div>
+    {/if}
 </div>

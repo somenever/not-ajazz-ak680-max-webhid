@@ -97,6 +97,7 @@
                             }
                         }
                     }
+                    disableBottomValue={!keyboard.config.features.includes("release-actuation")}
                 />
             </div>
 
