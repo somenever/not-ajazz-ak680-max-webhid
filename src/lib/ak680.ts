@@ -106,6 +106,7 @@ const createAK680Config = (
     options: Partial<KeyboardConfig> & { productId: number },
 ): KeyboardConfig => ({
     driver: AK680_DRIVER,
+    modelWip: true,
     vendorId: 3141,
     name: "AK680 MAX",
     maxActuation: 3.4,

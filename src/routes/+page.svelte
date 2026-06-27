@@ -25,6 +25,7 @@
 
     let showDisclaimer = $state(false);
     let showUnsupportedBrowser = $state(false);
+    let showWipModel = $state(false);
     let errorMessage = $state(nullOf<string>());
 
     let layerNames = storable<string[]>("layerNames", []);
@@ -74,6 +75,10 @@
 
                 try {
                     keyboard = await connectKeyboard();
+
+                    if (keyboard.config.modelWip) {
+                        showWipModel = true;
+                    }
                 } catch (err) {
                     console.error(err);
                     errorMessage =
@@ -156,6 +161,22 @@
             Please use a web browser that supports the WebHID API, such as Chrome or Edge.
         </p>
         <Button onclick={() => (showUnsupportedBrowser = false)}>
+            <IconCheck />OK
+        </Button>
+    </Popup>
+{/if}
+
+{#if showWipModel}
+    <Popup modal close={() => (showWipModel = false)} class="flex max-w-140 flex-col gap-3 p-6">
+        <h2 class="flex flex-col items-center gap-2 text-xl font-bold">
+            <IconTriangleAlert class="size-12" />
+            Work in Progress
+        </h2>
+        <p class="mb-4">
+            The driver for your keyboard model is a work in progress. Some features may not work
+            yet. Consult the GitHub repository for more information and updates.
+        </p>
+        <Button onclick={() => (showWipModel = false)}>
             <IconCheck />OK
         </Button>
     </Popup>

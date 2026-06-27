@@ -28,6 +28,7 @@ export type KeyboardFeature =
 export type KeyboardConfig<T = unknown> = {
     vendorId: number;
     productId: number;
+    modelWip?: boolean;
 
     name: string;
 
