@@ -170,16 +170,18 @@
 
 <KeyGrid {keyboard} {selectedKeys} bind:this={keyGrid}>
     {#snippet keyOverlay(key: Key)}
-        <ActuationInput
-            bind:value={key.upActuation}
-            min={keyboard.config.minActuation}
-            max={keyboard.config.maxActuation}
-            class={[
-                "absolute -top-0 left-1/2 z-10 w-6 -translate-x-1/2 text-yellow-100",
-                !showAllActuations && "invisible",
-                keyGrid?.isDragging?.() && "cursor-grabbing",
-            ]}
-        />
+        {#if keyboard.config.features.includes("release-actuation")}
+            <ActuationInput
+                bind:value={key.upActuation}
+                min={keyboard.config.minActuation}
+                max={keyboard.config.maxActuation}
+                class={[
+                    "absolute -top-0 left-1/2 z-10 w-6 -translate-x-1/2 text-yellow-100",
+                    !showAllActuations && "invisible",
+                    keyGrid?.isDragging?.() && "cursor-grabbing",
+                ]}
+            />
+        {/if}
         <ActuationInput
             bind:value={key.downActuation}
             min={keyboard.config.minActuation}
