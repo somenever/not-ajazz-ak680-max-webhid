@@ -28,28 +28,25 @@
     let hasUnsavedChanges = $state(false);
 
     const selectedKeys = new SvelteSet<number>();
+    const selectedKeysArr = $derived([...selectedKeys.values()]);
 
     const allAreSame = <T,>(arr: T[]) => arr.every((item) => item === arr[0]);
     const getCommonValue = <T,>(arr: T[]): T | null => (allAreSame(arr) ? arr[0] : null);
 
     const selectedKeysDownActuation = $derived(
-        getCommonValue([...selectedKeys.values().map((key) => keys[key].downActuation)]),
+        getCommonValue(selectedKeysArr.map((key) => keys[key].downActuation)),
     );
     const selectedKeysUpActuation = $derived(
-        getCommonValue([...selectedKeys.values().map((key) => keys[key].upActuation)]),
+        getCommonValue(selectedKeysArr.map((key) => keys[key].upActuation)),
     );
     const selectedKeysRapidTrigger = $derived(
-        getCommonValue([...selectedKeys.values().map((key) => keys[key].rapidTrigger)]),
+        getCommonValue(selectedKeysArr.map((key) => keys[key].rapidTrigger)),
     );
     const selectedKeysRTPressSensitivity = $derived(
-        getCommonValue([
-            ...selectedKeys.values().map((key) => keys[key].rapidTriggerPressSensitivity),
-        ]),
+        getCommonValue(selectedKeysArr.map((key) => keys[key].rapidTriggerPressSensitivity)),
     );
     const selectedKeysRTReleaseSensitivity = $derived(
-        getCommonValue([
-            ...selectedKeys.values().map((key) => keys[key].rapidTriggerReleaseSensitivity),
-        ]),
+        getCommonValue(selectedKeysArr.map((key) => keys[key].rapidTriggerReleaseSensitivity)),
     );
 
     const keyList = $derived(keyboard.config.keyList);
