@@ -79,20 +79,18 @@ const AK680_DRIVER: KeyboardDriver<DriverState> = {
             const rtPress = view.getUint16(offset + 4, true) / precision;
             const rtRelease = view.getUint16(offset + 6, true) / precision;
             console.log(
-                `key = ${keyboard.config.keyList[code]}; offset = ${offset}; axisType = ${axisType}; actuation = ${actuationPoint}; fullRT = ${fullRapidTrigger}; rtPress = ${rtPress} ; rtRelease = ${rtRelease}`,
+                `key = ${keyboard.config.keyList[code]}; offset = ${offset}; axisType = ${axisType}; actuation = ${actuationPoint}; fullRT = ${fullRapidTrigger}; rtPress = ${rtPress}; rtRelease = ${rtRelease}`,
             );
             keys[code] = {
                 code,
-                downActuation: actuationPoint,
+                downActuation: actuationPoint === 0 ? 1 : actuationPoint,
                 // no up actuation on these models
                 upActuation: 0,
                 rapidTrigger: rtPress !== 0,
                 rapidTriggerPressSensitivity: rtPress,
                 rapidTriggerReleaseSensitivity: rtRelease,
+                remap: { type: "off" },
             };
-            console.log(
-                `key = ${keyboard.config.keyList[code]}; code = ${code}; axisType = ${axisType}; fullRT = ${fullRapidTrigger}`,
-            );
         }
 
         return keys;
