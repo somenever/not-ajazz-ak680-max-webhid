@@ -15,18 +15,18 @@
         setLayer,
         type Keyboard,
     } from "$lib/keyboard";
+    import { errorMessage } from "$lib/error.svelte";
+    import githubLogo from "$lib/assets/github.svg";
     import Button from "$lib/components/button.svelte";
-    import KeyOptionsTab from "$lib/components/key-options-tab.svelte";
     import Popup from "$lib/components/popup.svelte";
     import IconButton from "$lib/components/icon-button.svelte";
     import Textbox from "$lib/components/textbox.svelte";
     import Tooltip from "$lib/components/tooltip.svelte";
-    import githubLogo from "$lib/assets/github.svg";
+    import KeyOptionsTab from "$lib/components/key-options-tab.svelte";
 
     let showDisclaimer = $state(false);
     let showUnsupportedBrowser = $state(false);
     let showWipModel = $state(false);
-    let errorMessage = $state(nullOf<string>());
 
     let layerNames = storable<string[]>("layerNames", []);
     let editLayerNamesPopup = $state(false);
@@ -81,7 +81,7 @@
                     }
                 } catch (err) {
                     console.error(err);
-                    errorMessage =
+                    errorMessage.value =
                         err instanceof Error ? err.message : "Couldn't connect to keyboard";
                 }
             }}
@@ -105,7 +105,18 @@
                 <h2 class="text-lg font-semibold">Layers</h2>
                 <div class="flex flex-wrap gap-2">
                     {#each LAYERS as layer}
-                        <Button onclick={() => setLayer(keyboard!, layer)} disabled={keyboard.busy}>
+                        <Button
+                            onclick={async () => {
+                                try {
+                                    await setLayer(keyboard!, layer);
+                                } catch (err) {
+                                    console.error(err);
+                                    errorMessage.value =
+                                        err instanceof Error ? err.message : "Failed to set layer";
+                                }
+                            }}
+                            disabled={keyboard.busy}
+                        >
                             {#if keyboard!.activeLayer === layer}
                                 <IconCheck />
                             {/if}
@@ -206,16 +217,20 @@
     </Popup>
 {/if}
 
-{#if errorMessage}
-    <Popup modal close={() => (errorMessage = null)} class="flex max-w-140 flex-col gap-3 p-6">
+{#if errorMessage.value}
+    <Popup
+        modal
+        close={() => (errorMessage.value = null)}
+        class="flex max-w-140 flex-col gap-3 p-6"
+    >
         <h2 class="flex flex-col items-center gap-2 text-xl font-bold">
             <IconTriangleAlert class="size-12" />
             Error
         </h2>
         <p class="mb-4">
-            {errorMessage}
+            {errorMessage.value}
         </p>
-        <Button onclick={() => (errorMessage = null)}>
+        <Button onclick={() => (errorMessage.value = null)}>
             <IconCheck />OK
         </Button>
     </Popup>

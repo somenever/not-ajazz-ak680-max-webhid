@@ -5,6 +5,7 @@
     import IconSquareDashedMousePointer from "~icons/lucide/square-dashed-mouse-pointer";
 
     import { applyKeys, type Key, type Keyboard } from "$lib/keyboard";
+    import { errorMessage } from "$lib/error.svelte";
     import layout from "$lib/layouts/ak680.json";
     import ActuationSlider from "$lib/components/actuation-slider.svelte";
     import ToggleSwitch from "$lib/components/toggle-switch.svelte";
@@ -197,7 +198,12 @@
 
 <TabActionRow
     onApply={async () => {
-        await applyKeys(keyboard, keyboard.keys);
+        try {
+            await applyKeys(keyboard, keyboard.keys);
+        } catch (err) {
+            console.error(err);
+            errorMessage.value = err instanceof Error ? err.message : "Failed to apply changes";
+        }
         hasUnsavedChanges = false;
     }}
     applyDisabled={!hasUnsavedChanges}
